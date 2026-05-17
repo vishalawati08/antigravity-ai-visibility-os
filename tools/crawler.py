@@ -120,7 +120,7 @@ def crawl_website(url):
         )
 
         # =====================================
-        # SCORES
+        # BASIC SCORES
         # =====================================
 
         seo_score = 80
@@ -167,7 +167,24 @@ def crawl_website(url):
                 seo_score,
 
             "geo_score":
-                geo_score
+                geo_score,
+
+            "serp_insights": [],
+
+            "technical_seo": {
+
+                "title_present":
+                    bool(title),
+
+                "meta_description_present":
+                    bool(meta_description),
+
+                "schema_found":
+                    schema_found,
+
+                "missing_alt":
+                    missing_alt
+            }
         }
 
     except Exception as error:
@@ -181,7 +198,8 @@ def crawl_website(url):
 
             "url": url,
 
-            "title": "Unknown Website",
+            "title":
+                "Unknown Website",
 
             "meta_description":
                 "Unable to extract metadata.",
@@ -198,5 +216,18 @@ def crawl_website(url):
 
             "seo_score": 50,
 
-            "geo_score": 40
+            "geo_score": 40,
+
+            "serp_insights": [],
+
+            "technical_seo": {
+
+                "title_present": False,
+
+                "meta_description_present": False,
+
+                "schema_found": False,
+
+                "missing_alt": 0
+            }
         }
