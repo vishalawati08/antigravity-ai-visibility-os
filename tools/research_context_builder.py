@@ -10,123 +10,208 @@ def build_research_context(
 ):
 
     # =====================================
-    # SAFE SITE DATA
+    # COMPETITOR AVERAGE
     # =====================================
 
-    title = site_data.get(
-        "title",
-        "Unknown Website"
-    )
-
-    meta_description = site_data.get(
-        "meta_description",
-        "No meta description available."
-    )
-
-    seo_score = site_data.get(
-        "seo_score",
-        50
-    )
-
-    geo_score = site_data.get(
-        "geo_score",
-        50
-    )
-
-    word_count = site_data.get(
-        "word_count",
-        0
-    )
-
-    schema_found = site_data.get(
-        "schema_found",
-        False
-    )
-
-    issues = site_data.get(
-        "issues",
-        []
-    )
-
-    # =====================================
-    # COMPETITOR AVERAGES
-    # =====================================
+    competitor_average = 0
 
     if competitor_data:
 
-        avg_competitor_seo = round(
+        competitor_average = (
 
             sum(
 
                 competitor.get(
                     "seo_score",
-                    50
+                    0
                 )
 
                 for competitor in competitor_data
 
-            ) / len(competitor_data),
-
-            2
-        )
-
-        avg_competitor_geo = round(
-
-            sum(
-
-                competitor.get(
-                    "geo_score",
-                    50
+                if isinstance(
+                    competitor,
+                    dict
                 )
 
-                for competitor in competitor_data
+            )
 
-            ) / len(competitor_data),
-
-            2
+            / len(competitor_data)
         )
 
-    else:
-
-        avg_competitor_seo = 50
-
-        avg_competitor_geo = 50
-
     # =====================================
-    # BUILD CONTEXT
+    # TITLE
     # =====================================
 
-    context = {
+    title_present = bool(
 
-        "website_title":
-            title,
+        site_data.get(
+            "title"
+        )
+    )
+
+    # =====================================
+    # META DESCRIPTION
+    # =====================================
+
+    meta_description_present = bool(
+
+        site_data.get(
+            "meta_description"
+        )
+    )
+
+    # =====================================
+    # H1 COUNT
+    # =====================================
+
+    h1_count = len(
+
+        site_data.get(
+            "h1_tags",
+            []
+        )
+    )
+
+    # =====================================
+    # H2 COUNT
+    # =====================================
+
+    h2_count = len(
+
+        site_data.get(
+            "h2_tags",
+            []
+        )
+    )
+
+    # =====================================
+    # INTERNAL LINKS
+    # =====================================
+
+    internal_link_count = len(
+
+        site_data.get(
+            "internal_links",
+            []
+        )
+    )
+
+    # =====================================
+    # FINAL CONTEXT
+    # =====================================
+
+    return {
+
+        # BASIC
+
+        "url":
+            site_data.get(
+                "url",
+                ""
+            ),
+
+        "title":
+            site_data.get(
+                "title",
+                ""
+            ),
 
         "meta_description":
-            meta_description,
+            site_data.get(
+                "meta_description",
+                ""
+            ),
 
-        "seo_score":
-            seo_score,
+        # PRESENCE FLAGS
 
-        "geo_score":
-            geo_score,
+        "title_present":
+            title_present,
+
+        "meta_description_present":
+            meta_description_present,
+
+        # CONTENT
 
         "word_count":
-            word_count,
+            site_data.get(
+                "word_count",
+                0
+            ),
+
+        "content_depth":
+            site_data.get(
+                "content_depth",
+                "Low"
+            ),
+
+        # STRUCTURE
+
+        "h1_count":
+            h1_count,
+
+        "h2_count":
+            h2_count,
 
         "schema_found":
-            schema_found,
+            site_data.get(
+                "schema_found",
+                False
+            ),
 
-        "issues":
-            issues,
+        "faq_detected":
+            site_data.get(
+                "faq_detected",
+                False
+            ),
+
+        # LINKS
+
+        "internal_link_count":
+            internal_link_count,
+
+        # IMAGES
+
+        "images_missing_alt":
+            site_data.get(
+                "images_missing_alt",
+                0
+            ),
+
+        # AI READINESS
+
+        "ai_readiness":
+            site_data.get(
+                "ai_readiness",
+                "Low"
+            ),
+
+        # COMPETITION
+
+        "competitor_average":
+            competitor_average,
 
         "competitor_count":
             len(competitor_data),
 
-        "avg_competitor_seo":
-            avg_competitor_seo,
+        # TECHNICAL
 
-        "avg_competitor_geo":
-            avg_competitor_geo
+        "canonical":
+            site_data.get(
+                "canonical",
+                ""
+            ),
+
+        "robots_meta":
+            site_data.get(
+                "robots_meta",
+                ""
+            ),
+
+        # RAW FINDINGS
+
+        "technical_findings":
+            site_data.get(
+                "technical_findings",
+                []
+            )
     }
-
-    return context

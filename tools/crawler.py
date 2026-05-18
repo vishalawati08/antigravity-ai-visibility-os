@@ -1,233 +1,470 @@
-import requests
-
+from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
+from urllib.parse import urlparse, urljoin
 
 
 # =========================================
-# SIMPLE WEBSITE CRAWLER
+# PAGE ANALYZER
+# =========================================
+
+def analyze_page(
+
+    html,
+
+    url
+):
+
+    soup = BeautifulSoup(
+        html,
+        "html.parser"
+    )
+
+    data = {
+
+        "url": url,
+
+        "title": "",
+
+        "meta_description": "",
+
+        "h1_tags": [],
+
+        "h2_tags": [],
+
+        "paragraphs": [],
+
+        "internal_links": [],
+
+        "word_count": 0,
+
+        "schema_found": False,
+
+        "faq_detected": False
+    }
+
+    # =====================================
+    # TITLE
+    # =====================================
+
+    if soup.title:
+
+        data["title"] = soup.title.text.strip()
+
+    # =====================================
+    # META
+    # =====================================
+
+    meta = soup.find(
+        "meta",
+        attrs={"name": "description"}
+    )
+
+    if meta:
+
+        data["meta_description"] = meta.get(
+            "content",
+            ""
+        )
+
+    # =====================================
+    # HEADINGS
+    # =====================================
+
+    data["h1_tags"] = [
+
+        h.get_text(strip=True)
+
+        for h in soup.find_all("h1")
+    ]
+
+    data["h2_tags"] = [
+
+        h.get_text(strip=True)
+
+        for h in soup.find_all("h2")
+    ]
+
+    # =====================================
+    # PARAGRAPHS
+    # =====================================
+
+    paragraphs = [
+
+        p.get_text(" ", strip=True)
+
+        for p in soup.find_all("p")
+    ]
+
+    data["paragraphs"] = paragraphs
+
+    full_text = " ".join(paragraphs)
+
+    data["word_count"] = len(
+        full_text.split()
+    )
+
+    # =====================================
+    # SCHEMA
+    # =====================================
+
+    schema_tags = soup.find_all(
+
+        "script",
+
+        attrs={
+            "type": "application/ld+json"
+        }
+    )
+
+    if schema_tags:
+
+        data["schema_found"] = True
+
+    # =====================================
+    # FAQ DETECTION
+    # =====================================
+
+    page_text = soup.get_text(
+        " ",
+        strip=True
+    ).lower()
+
+    faq_keywords = [
+
+        "faq",
+
+        "frequently asked questions"
+    ]
+
+    for keyword in faq_keywords:
+
+        if keyword in page_text:
+
+            data["faq_detected"] = True
+
+    # =====================================
+    # LINKS
+    # =====================================
+
+    parsed_domain = urlparse(url).netloc
+
+    for link in soup.find_all("a"):
+
+        href = link.get("href")
+
+        if not href:
+
+            continue
+
+        absolute_url = urljoin(
+            url,
+            href
+        )
+
+        if parsed_domain in absolute_url:
+
+            data["internal_links"].append(
+                absolute_url
+            )
+
+    return data
+
+
+# =========================================
+# MAIN WEBSITE CRAWLER
 # =========================================
 
 def crawl_website(url):
 
+    visited = set()
+
+    pages_to_visit = [url]
+
+    crawled_pages = []
+
+    max_pages = 5
+
     try:
 
-        headers = {
+        with sync_playwright() as p:
 
-            "User-Agent": (
-
-                "Mozilla/5.0 "
-                "(Windows NT 10.0; Win64; x64)"
-            )
-        }
-
-        response = requests.get(
-
-            url,
-
-            headers=headers,
-
-            timeout=20
-        )
-
-        html = response.text
-
-        soup = BeautifulSoup(
-
-            html,
-
-            "html.parser"
-        )
-
-        # =====================================
-        # TITLE
-        # =====================================
-
-        title = "No title found"
-
-        if soup.title:
-
-            title = soup.title.text.strip()
-
-        # =====================================
-        # META DESCRIPTION
-        # =====================================
-
-        meta_description = ""
-
-        meta_tag = soup.find(
-
-            "meta",
-
-            attrs={
-                "name": "description"
-            }
-        )
-
-        if meta_tag:
-
-            meta_description = (
-                meta_tag.get("content", "")
+            browser = p.chromium.launch(
+                headless=True
             )
 
-        # =====================================
-        # HEADINGS
-        # =====================================
+            page = browser.new_page()
 
-        h1_tags = soup.find_all("h1")
+            while (
 
-        h2_tags = soup.find_all("h2")
+                pages_to_visit
 
-        # =====================================
-        # IMAGES
-        # =====================================
+                and
 
-        images = soup.find_all("img")
+                len(crawled_pages) < max_pages
+            ):
 
-        missing_alt = 0
+                current_url = pages_to_visit.pop(0)
 
-        for image in images:
+                if current_url in visited:
 
-            if not image.get("alt"):
+                    continue
 
-                missing_alt += 1
+                visited.add(current_url)
 
-        # =====================================
-        # CONTENT
-        # =====================================
+                try:
 
-        text_content = soup.get_text()
+                    page.goto(
 
-        word_count = len(
+                        current_url,
 
-            text_content.split()
-        )
+                        timeout=45000
+                    )
 
-        # =====================================
-        # SCHEMA
-        # =====================================
+                    html = page.content()
 
-        schema_found = bool(
+                    page_data = analyze_page(
 
-            soup.find_all(
+                        html,
 
-                "script",
+                        current_url
+                    )
 
-                attrs={
-                    "type":
-                    "application/ld+json"
-                }
-            )
-        )
+                    crawled_pages.append(
+                        page_data
+                    )
 
-        # =====================================
-        # BASIC SCORES
-        # =====================================
+                    # =====================
+                    # DISCOVER NEW LINKS
+                    # =====================
 
-        seo_score = 80
+                    for link in page_data[
+                        "internal_links"
+                    ]:
 
-        geo_score = 45
+                        if (
 
-        if schema_found:
+                            link not in visited
 
-            geo_score += 10
+                            and
 
-        if word_count > 1500:
+                            link not in pages_to_visit
+                        ):
 
-            seo_score += 5
+                            pages_to_visit.append(
+                                link
+                            )
 
-        # =====================================
-        # OUTPUT
-        # =====================================
+                except:
 
-        return {
+                    continue
 
-            "url": url,
-
-            "title": title,
-
-            "meta_description":
-                meta_description,
-
-            "h1_count":
-                len(h1_tags),
-
-            "h2_count":
-                len(h2_tags),
-
-            "word_count":
-                word_count,
-
-            "missing_alt":
-                missing_alt,
-
-            "schema_found":
-                schema_found,
-
-            "seo_score":
-                seo_score,
-
-            "geo_score":
-                geo_score,
-
-            "serp_insights": [],
-
-            "technical_seo": {
-
-                "title_present":
-                    bool(title),
-
-                "meta_description_present":
-                    bool(meta_description),
-
-                "schema_found":
-                    schema_found,
-
-                "missing_alt":
-                    missing_alt
-            }
-        }
+            browser.close()
 
     except Exception as error:
 
-        print(
-
-            f"CRAWLER ERROR: {error}"
-        )
-
         return {
 
             "url": url,
 
-            "title":
-                "Unknown Website",
+            "crawl_error": str(error),
 
-            "meta_description":
-                "Unable to extract metadata.",
-
-            "h1_count": 0,
-
-            "h2_count": 0,
-
-            "word_count": 0,
-
-            "missing_alt": 0,
-
-            "schema_found": False,
-
-            "seo_score": 50,
-
-            "geo_score": 40,
-
-            "serp_insights": [],
-
-            "technical_seo": {
-
-                "title_present": False,
-
-                "meta_description_present": False,
-
-                "schema_found": False,
-
-                "missing_alt": 0
-            }
+            "technical_findings": [
+                str(error)
+            ]
         }
+
+    # =====================================
+    # AGGREGATE SITE DATA
+    # =====================================
+
+    total_word_count = sum(
+
+        page.get(
+            "word_count",
+            0
+        )
+
+        for page in crawled_pages
+    )
+
+    total_h1 = sum(
+
+        len(
+            page.get(
+                "h1_tags",
+                []
+            )
+        )
+
+        for page in crawled_pages
+    )
+
+    total_h2 = sum(
+
+        len(
+            page.get(
+                "h2_tags",
+                []
+            )
+        )
+
+        for page in crawled_pages
+    )
+
+    schema_found = any(
+
+        page.get(
+            "schema_found",
+            False
+        )
+
+        for page in crawled_pages
+    )
+
+    faq_detected = any(
+
+        page.get(
+            "faq_detected",
+            False
+        )
+
+        for page in crawled_pages
+    )
+
+    all_internal_links = []
+
+    for page in crawled_pages:
+
+        all_internal_links.extend(
+
+            page.get(
+                "internal_links",
+                []
+            )
+        )
+
+    # =====================================
+    # CONTENT DEPTH
+    # =====================================
+
+    content_depth = "Low"
+
+    if total_word_count > 8000:
+
+        content_depth = "High"
+
+    elif total_word_count > 3000:
+
+        content_depth = "Medium"
+
+    # =====================================
+    # AI READINESS
+    # =====================================
+
+    ai_score = 0
+
+    if schema_found:
+
+        ai_score += 1
+
+    if faq_detected:
+
+        ai_score += 1
+
+    if total_h2 >= 10:
+
+        ai_score += 1
+
+    if total_word_count >= 3000:
+
+        ai_score += 1
+
+    ai_readiness = "Low"
+
+    if ai_score >= 3:
+
+        ai_readiness = "High"
+
+    elif ai_score == 2:
+
+        ai_readiness = "Medium"
+
+    # =====================================
+    # PRIMARY PAGE
+    # =====================================
+
+    primary_page = crawled_pages[0]
+
+    # =====================================
+    # FINAL SITE DATA
+    # =====================================
+
+    return {
+
+        "url": url,
+
+        "pages_crawled":
+            len(crawled_pages),
+
+        "all_pages":
+            crawled_pages,
+
+        "title":
+            primary_page.get(
+                "title",
+                ""
+            ),
+
+        "meta_description":
+            primary_page.get(
+                "meta_description",
+                ""
+            ),
+
+        "h1_tags":
+            primary_page.get(
+                "h1_tags",
+                []
+            ),
+
+        "h2_tags":
+            primary_page.get(
+                "h2_tags",
+                []
+            ),
+
+        "paragraphs":
+            primary_page.get(
+                "paragraphs",
+                []
+            ),
+
+        "internal_links":
+            list(
+                set(all_internal_links)
+            ),
+
+        "word_count":
+            total_word_count,
+
+        "schema_found":
+            schema_found,
+
+        "faq_detected":
+            faq_detected,
+
+        "content_depth":
+            content_depth,
+
+        "ai_readiness":
+            ai_readiness,
+
+        "technical_findings": [
+
+            f"{len(crawled_pages)} pages crawled",
+
+            f"{total_word_count} total words analyzed",
+
+            f"{len(all_internal_links)} internal links discovered"
+        ]
+    }

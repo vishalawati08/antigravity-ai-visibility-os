@@ -1,201 +1,589 @@
 # =========================================
-# STRUCTURED REPORT SECTION GENERATOR
+# EXECUTIVE SUMMARY
 # =========================================
 
-def executive_summary(research_context):
-
-    seo_score = research_context.get(
-        "seo_score",
-        50
-    )
-
-    geo_score = research_context.get(
-        "geo_score",
-        50
-    )
-
-    competitor_count = max(
-
-        3,
-
-        research_context.get(
-            "competitor_count",
-            0
-        )
-    )
-
-    return f"""
-
-The organization demonstrates an evolving digital presence with an SEO maturity score of {seo_score} and an AI visibility score of {geo_score}.
-
-Competitive analysis evaluated approximately {competitor_count} competitors across search visibility and AI-search readiness dimensions.
-
-Strategic opportunities exist in semantic optimization, AI discoverability and generative search positioning.
-
-"""
-
-
-# =========================================
-# AI VISIBILITY ANALYSIS
-# =========================================
-
-def ai_visibility_analysis(
+def executive_summary(
 
     research_context
 ):
-
-    geo_score = research_context.get(
-        "geo_score",
-        50
-    )
-
-    schema_found = research_context.get(
-        "schema_found",
-        False
-    )
 
     word_count = research_context.get(
         "word_count",
         0
     )
 
-    schema_status = (
-        "Detected"
-        if schema_found
-        else "Not Detected"
+    ai_readiness = research_context.get(
+        "ai_readiness",
+        "Low"
     )
 
-    return f"""
+    competitor_average = research_context.get(
+        "competitor_average",
+        0
+    )
 
-Current AI visibility readiness score: {geo_score}.
+    summary = """
 
-Structured schema markup status: {schema_status}.
+    The analysis indicates that the website
+    demonstrates evolving search visibility
+    maturity with opportunities to improve
+    semantic discoverability, AI-answer
+    readiness and competitive positioning.
 
-Content depth analysis identified approximately {word_count} indexed words contributing toward semantic relevance and answer-engine discoverability.
+    """
 
-GEO optimization improvements could significantly improve visibility across generative AI search systems.
+    # =====================================
+    # CONTENT DEPTH
+    # =====================================
 
-"""
+    if word_count > 4000:
+
+        summary += """
+
+        Strong content depth and semantic
+        breadth contribute positively to
+        topical authority and AI discoverability.
+
+        """
+
+    elif word_count < 1500:
+
+        summary += """
+
+        Limited semantic depth may reduce
+        topical authority and weaken broader
+        search discoverability.
+
+        """
+
+    # =====================================
+    # AI READINESS
+    # =====================================
+
+    if ai_readiness == "High":
+
+        summary += """
+
+        AI-answer readiness appears strong,
+        supported by semantic structure,
+        machine-readable content and
+        conversational discoverability signals.
+
+        """
+
+    elif ai_readiness == "Low":
+
+        summary += """
+
+        AI-answer readiness remains limited,
+        particularly across structured
+        conversational optimization signals.
+
+        """
+
+    # =====================================
+    # COMPETITOR POSITION
+    # =====================================
+
+    if competitor_average > 75:
+
+        summary += """
+
+        Competitive benchmarking indicates
+        that industry competitors demonstrate
+        relatively mature semantic and AI
+        visibility strategies.
+
+        """
+
+    elif competitor_average > 60:
+
+        summary += """
+
+        Competitive analysis suggests
+        moderate industry maturity with
+        opportunities for strategic
+        differentiation.
+
+        """
+
+    summary += """
+
+    Strategic improvements across
+    semantic architecture, structured
+    content and AI-answer optimization
+    may significantly improve both
+    organic search visibility and
+    AI-generated discoverability.
+
+    """
+
+    return summary
 
 
 # =========================================
-# COMPETITOR ANALYSIS
+# AI VISIBILITY SECTION
 # =========================================
 
-def competitor_analysis(
+def generate_ai_visibility_section(
 
-    research_context,
+    site_data,
 
-    competitor_data
+    scores
 ):
 
-    competitor_count = max(
-
-        3,
-
-        len(competitor_data)
+    ai_score = scores.get(
+        "ai_visibility_score",
+        0
     )
 
-    avg_competitor_seo = research_context.get(
-        "avg_competitor_seo",
-        72
-    )
-
-    avg_competitor_geo = research_context.get(
-        "avg_competitor_geo",
-        68
-    )
-
-    return f"""
-
-Competitive intelligence analysis evaluated approximately {competitor_count} relevant competitor domains.
-
-Average competitor SEO maturity score: {avg_competitor_seo}
-
-Average competitor AI visibility score: {avg_competitor_geo}
-
-Several competitors demonstrate stronger semantic positioning and improved AI-search discoverability signals.
-
-Strategic investment into GEO optimization, topical authority and AI citation readiness may improve market positioning significantly.
-
-"""
-
-
-# =========================================
-# SERP ANALYSIS
-# =========================================
-
-def serp_analysis(research_context):
-
-    seo_score = research_context.get(
-        "seo_score",
-        50
-    )
-
-    geo_score = research_context.get(
+    geo_score = scores.get(
         "geo_score",
-        50
+        0
     )
 
-    return f"""
+    section = f"""
 
-Current search visibility signals indicate moderate SERP positioning maturity.
+    AI Visibility Intelligence
 
-SEO Score: {seo_score}
+    AI Visibility Score:
+    {ai_score}/100
 
-AI Visibility Score: {geo_score}
+    GEO / AEO Score:
+    {geo_score}/100
 
-AI-generated search experiences increasingly prioritize semantic relevance, entity clarity and structured discoverability signals.
+    """
 
-Additional optimization opportunities exist in AI citation readiness and answer-engine indexing alignment.
+    # =====================================
+    # SCORE INTERPRETATION
+    # =====================================
 
-"""
+    if ai_score >= 80:
+
+        section += """
+
+        The website demonstrates strong
+        AI-search readiness with relatively
+        mature semantic architecture and
+        answer-focused discoverability.
+
+        """
+
+    elif ai_score >= 60:
+
+        section += """
+
+        AI visibility maturity appears
+        moderate with opportunities to
+        strengthen conversational
+        optimization and semantic clarity.
+
+        """
+
+    else:
+
+        section += """
+
+        AI discoverability maturity appears
+        limited and may reduce inclusion
+        within AI-generated search responses.
+
+        """
+
+    # =====================================
+    # FAQ
+    # =====================================
+
+    if site_data.get("faq_detected"):
+
+        section += """
+
+        FAQ-focused semantic structures
+        contribute positively toward
+        conversational answer extraction.
+
+        """
+
+    else:
+
+        section += """
+
+        FAQ-oriented semantic structures
+        were not strongly detected and
+        remain a strategic opportunity area.
+
+        """
+
+    # =====================================
+    # SCHEMA
+    # =====================================
+
+    if site_data.get("schema_found"):
+
+        section += """
+
+        Structured schema implementation
+        improves machine-readable context
+        and entity interpretation.
+
+        """
+
+    else:
+
+        section += """
+
+        Missing schema implementation may
+        reduce structured discoverability
+        across AI systems and search engines.
+
+        """
+
+    return section
 
 
 # =========================================
-# RECOMMENDATIONS
+# COMPETITOR SECTION
 # =========================================
 
-def recommendations(research_context):
+def generate_competitor_section(
 
-    schema_found = research_context.get(
-        "schema_found",
-        False
+    competitor_data,
+
+    scores
+):
+
+    competitors = competitor_data.get(
+        "competitors",
+        []
     )
 
-    recommendation_list = []
+    section = """
 
-    recommendation_list.append(
+    Competitive Benchmarking Analysis
 
-        "Improve semantic search optimization and topical authority depth."
+    The platform identified multiple
+    industry-relevant competitors with
+    measurable differences across
+    semantic maturity, AI visibility
+    and content authority.
+
+    """
+
+    if not competitors:
+
+        section += """
+
+        No competitor intelligence
+        could be generated.
+
+        """
+
+        return section
+
+    # =====================================
+    # BENCHMARK TABLE
+    # =====================================
+
+    section += """
+
+    Benchmark Comparison
+
+    """
+
+    for competitor in competitors:
+
+        section += f"""
+
+        ------------------------------------------------
+
+        Competitor:
+        {competitor.get('name', 'Unknown')}
+
+        SEO Score:
+        {competitor.get('seo_score', 0)}/100
+
+        AI Visibility:
+        {competitor.get('ai_visibility', 0)}/100
+
+        GEO / AEO:
+        {competitor.get('geo_score', 0)}/100
+
+        Content Depth:
+        {competitor.get('content_depth', 'Low')}
+
+        Total Content:
+        {competitor.get('word_count', 0)} words
+
+        """
+
+    # =====================================
+    # STRATEGIC GAP ANALYSIS
+    # =====================================
+
+    section += """
+
+    Strategic Gap Analysis
+
+    Competitive benchmarking indicates
+    that differentiation opportunities
+    primarily exist across:
+
+    - semantic content architecture
+    - answer-focused optimization
+    - AI discoverability maturity
+    - structured schema implementation
+    - topical authority expansion
+    - conversational search readiness
+    - semantic hierarchy refinement
+
+    """
+
+    # =====================================
+    # POSITIONING
+    # =====================================
+
+    own_score = scores.get(
+        "seo_score",
+        0
     )
 
-    recommendation_list.append(
+    top_competitor = max(
 
-        "Expand AI-search readiness through GEO/AEO optimization."
+        competitors,
+
+        key=lambda x:
+            x.get("seo_score", 0)
     )
 
-    if not schema_found:
-
-        recommendation_list.append(
-
-            "Implement structured schema markup for improved AI discoverability."
-        )
-
-    recommendation_list.append(
-
-        "Strengthen AI citation optimization across strategic pages."
+    competitor_score = top_competitor.get(
+        "seo_score",
+        0
     )
 
-    recommendation_list.append(
+    if own_score >= competitor_score:
 
-        "Increase content depth and entity-level relevance signals."
+        section += """
+
+        The website demonstrates competitive
+        leadership across several core
+        visibility dimensions.
+
+        """
+
+    else:
+
+        section += f"""
+
+        The strongest competitor currently
+        demonstrates higher estimated SEO
+        maturity ({competitor_score}/100),
+        indicating opportunities for further
+        strategic optimization.
+
+        """
+
+    return section
+
+
+# =========================================
+# SERP SECTION
+# =========================================
+
+def generate_serp_section(
+
+    site_data,
+
+    scores
+):
+
+    seo_score = scores.get(
+        "seo_score",
+        0
     )
 
-    recommendation_html = ""
+    word_count = site_data.get(
+        "word_count",
+        0
+    )
 
-    for item in recommendation_list:
+    section = f"""
 
-        recommendation_html += f"• {item}\n\n"
+    SERP Visibility Intelligence
 
-    return recommendation_html
+    Estimated SEO Maturity:
+    {seo_score}/100
+
+    """
+
+    # =====================================
+    # SCORE ANALYSIS
+    # =====================================
+
+    if seo_score >= 80:
+
+        section += """
+
+        The website demonstrates strong
+        technical and semantic SEO maturity
+        supporting broader search visibility.
+
+        """
+
+    elif seo_score >= 60:
+
+        section += """
+
+        Moderate SEO maturity detected with
+        opportunities to improve semantic
+        structure and discoverability.
+
+        """
+
+    else:
+
+        section += """
+
+        SEO maturity appears relatively
+        limited compared to broader
+        competitive benchmarks.
+
+        """
+
+    # =====================================
+    # CONTENT ANALYSIS
+    # =====================================
+
+    section += f"""
+
+    Approximate semantic content analyzed:
+    {word_count} words
+
+    """
+
+    if word_count > 4000:
+
+        section += """
+
+        Strong semantic depth supports
+        topical authority expansion and
+        broader keyword discoverability.
+
+        """
+
+    else:
+
+        section += """
+
+        Additional semantic expansion may
+        improve topical breadth and ranking
+        opportunities.
+
+        """
+
+    # =====================================
+    # STRATEGIC AREAS
+    # =====================================
+
+    section += """
+
+    Additional optimization opportunities
+    include:
+
+    - semantic topic clustering
+    - internal linking refinement
+    - structured metadata optimization
+    - AI-answer discoverability
+    - content hierarchy enhancement
+    - semantic authority expansion
+
+    """
+
+    return section
+
+
+# =========================================
+# RECOMMENDATIONS SECTION
+# =========================================
+
+def generate_recommendations_section(
+
+    priority_actions
+):
+
+    section = """
+
+    Strategic Recommendations
+
+    The following initiatives are
+    recommended to improve both
+    traditional SEO performance and
+    AI-generated visibility.
+
+    """
+
+    if not priority_actions:
+
+        section += """
+
+        No major strategic recommendations
+        were generated during the analysis.
+
+        """
+
+        return section
+
+    # =====================================
+    # PRIORITY ACTIONS
+    # =====================================
+
+    for action in priority_actions:
+
+        if isinstance(action, str):
+
+            section += f"""
+
+            ------------------------------------------------
+
+            Recommendation:
+            {action}
+
+            Estimated Priority:
+            Medium
+
+            """
+
+        elif isinstance(action, dict):
+
+            section += f"""
+
+            ------------------------------------------------
+
+            Recommendation:
+            {action.get('action', '')}
+
+            Priority Level:
+            {action.get('priority', 'Medium')}
+
+            """
+
+    # =====================================
+    # STRATEGIC INITIATIVES
+    # =====================================
+
+    section += """
+
+    Recommended long-term strategic
+    focus areas include:
+
+    - AI-answer optimization
+    - conversational discoverability
+    - semantic content scaling
+    - structured entity implementation
+    - semantic hierarchy refinement
+    - topical authority expansion
+    - internal linking architecture
+    - AI-search readiness enhancement
+
+    """
+
+    return section

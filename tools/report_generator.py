@@ -1,217 +1,324 @@
-from fpdf import FPDF
+# =========================================
+# HTML REPORT RENDERER
+# =========================================
 
+def render_html_report(
 
-def safe_text(text):
-
-    if not text:
-        return ""
-
-    text = str(text)
-
-    # Remove unsupported characters
-    text = text.encode(
-        "latin-1",
-        "replace"
-    ).decode("latin-1")
-
-    # Prevent huge unbreakable strings
-    if len(text) > 500:
-        text = text[:500] + "..."
-
-    return text
-
-
-def generate_report(
-    result,
-    filename="seo_audit_report.pdf"
+    report
 ):
 
-    pdf = FPDF()
-
-    pdf.set_auto_page_break(
-        auto=True,
-        margin=15
+    scores = report.get(
+        "scores",
+        {}
     )
 
-    pdf.add_page()
-
-    # ====================================
-    # TITLE
-    # ====================================
-
-    pdf.set_font("Arial", "B", 20)
-
-    pdf.cell(
-        190,
-        10,
-        "AI SEO Strategist Report",
-        ln=True,
-        align="C"
+    executive_summary = report.get(
+        "executive_summary",
+        ""
     )
 
-    pdf.ln(10)
-
-    # ====================================
-    # EXECUTIVE SUMMARY
-    # ====================================
-
-    pdf.set_font("Arial", "B", 16)
-
-    pdf.cell(
-        190,
-        10,
-        "Executive Summary",
-        ln=True
+    technical_audit = report.get(
+        "technical_audit",
+        []
     )
 
-    pdf.set_font("Arial", "", 12)
-
-    pdf.multi_cell(
-        190,
-        8,
-        safe_text(
-            result["executive_summary"]
-        )
+    orchestration_history = report.get(
+        "orchestration_history",
+        []
     )
 
-    pdf.ln(5)
-
-    # ====================================
-    # SEO METRICS
-    # ====================================
-
-    pdf.set_font("Arial", "B", 16)
-
-    pdf.cell(
-        190,
-        10,
-        "SEO Metrics",
-        ln=True
+    recommendations = report.get(
+        "recommendations",
+        ""
     )
 
-    pdf.set_font("Arial", "", 12)
+    # =====================================
+    # TECHNICAL AUDIT HTML
+    # =====================================
 
-    metrics = [
-        f"SEO Score: {result['seo_score']}/100",
-        f"GEO Score: {result['geo_score']}/100",
-        f"Word Count: {result['word_count']}",
-        f"Total Links: {result['total_links']}",
-        f"Images: {result['total_images']}",
-        f"Schema Found: {result['schema_found']}"
-    ]
+    audit_html = ""
 
-    for metric in metrics:
+    for finding in technical_audit:
 
-        pdf.multi_cell(
-            190,
-            8,
-            safe_text(metric)
-        )
+        if isinstance(finding, dict):
 
-    pdf.ln(5)
+            audit_html += f"""
 
-    # ====================================
-    # STRATEGIC INSIGHTS
-    # ====================================
+            <div class="audit-card">
 
-    pdf.set_font("Arial", "B", 16)
+                <h3>
+                    {finding.get('priority', 'Medium')}
+                    — {finding.get('category', 'Audit')}
+                </h3>
 
-    pdf.cell(
-        190,
-        10,
-        "Strategic Insights",
-        ln=True
-    )
+                <p>
+                    <strong>Issue:</strong>
+                    {finding.get('issue', '')}
+                </p>
 
-    pdf.set_font("Arial", "", 12)
+                <p>
+                    <strong>Details:</strong>
+                    {finding.get('details', '')}
+                </p>
 
-    for insight in result["strategic_insights"]:
+                <p>
+                    <strong>Recommendation:</strong>
+                    {finding.get('recommendation', '')}
+                </p>
 
-        pdf.multi_cell(
-            190,
-            8,
-            safe_text(f"- {insight}")
-        )
+            </div>
+            """
 
-    pdf.ln(5)
+        else:
 
-    # ====================================
-    # PRIORITY ACTIONS
-    # ====================================
+            audit_html += f"""
 
-    pdf.set_font("Arial", "B", 16)
+            <div class="audit-card">
 
-    pdf.cell(
-        190,
-        10,
-        "Priority Actions",
-        ln=True
-    )
+                <p>{finding}</p>
 
-    pdf.set_font("Arial", "", 12)
+            </div>
+            """
 
-    for action in result["priority_actions"]:
+    # =====================================
+    # ORCHESTRATION HTML
+    # =====================================
 
-        pdf.multi_cell(
-            190,
-            8,
-            safe_text(f"- {action}")
-        )
+    orchestration_html = ""
 
-    pdf.ln(5)
+    for item in orchestration_history:
 
-    # ====================================
-    # SERP INSIGHTS
-    # ====================================
+        orchestration_html += f"""
 
-    pdf.set_font("Arial", "B", 16)
+        <li>{item}</li>
 
-    pdf.cell(
-        190,
-        10,
-        "SERP Intelligence",
-        ln=True
-    )
+        """
 
-    pdf.set_font("Arial", "", 12)
+    # =====================================
+    # FINAL HTML
+    # =====================================
 
-    for insight in result["serp_insights"]:
+    html = f"""
 
-        pdf.multi_cell(
-            190,
-            8,
-            safe_text(f"- {insight}")
-        )
+    <html>
 
-    pdf.ln(5)
+    <head>
 
-    # ====================================
-    # TOP RANKING URLS
-    # ====================================
+    <style>
 
-    pdf.set_font("Arial", "B", 16)
+    body {{
 
-    pdf.cell(
-        190,
-        10,
-        "Top Ranking URLs",
-        ln=True
-    )
+        font-family: Arial, sans-serif;
 
-    pdf.set_font("Arial", "", 11)
+        background-color: #F5F7FB;
 
-    for url in result["serp_results"][:10]:
+        color: #111827;
 
-        pdf.multi_cell(
-            190,
-            7,
-            safe_text(url)
-        )
+        padding: 40px;
+    }}
 
-    # ====================================
-    # SAVE PDF
-    # ====================================
+    .hero {{
 
-    pdf.output(filename)
+        margin-bottom: 40px;
+    }}
 
-    return filename
+    .title {{
+
+        font-size: 48px;
+
+        font-weight: bold;
+
+        margin-bottom: 10px;
+    }}
+
+    .subtitle {{
+
+        color: #6B7280;
+
+        font-size: 18px;
+    }}
+
+    .section {{
+
+        background: white;
+
+        padding: 30px;
+
+        border-radius: 16px;
+
+        margin-bottom: 30px;
+
+        border: 1px solid #E5E7EB;
+    }}
+
+    .metric-grid {{
+
+        display: grid;
+
+        grid-template-columns: repeat(4, 1fr);
+
+        gap: 20px;
+
+        margin-bottom: 40px;
+    }}
+
+    .metric-card {{
+
+        background: white;
+
+        padding: 20px;
+
+        border-radius: 16px;
+
+        border: 1px solid #E5E7EB;
+    }}
+
+    .metric-title {{
+
+        color: #6B7280;
+
+        margin-bottom: 10px;
+    }}
+
+    .metric-value {{
+
+        font-size: 32px;
+
+        font-weight: bold;
+    }}
+
+    .audit-card {{
+
+        border: 1px solid #E5E7EB;
+
+        padding: 20px;
+
+        border-radius: 12px;
+
+        margin-bottom: 20px;
+    }}
+
+    </style>
+
+    </head>
+
+    <body>
+
+    <div class="hero">
+
+        <div class="title">
+            AI Visibility OS
+        </div>
+
+        <div class="subtitle">
+            Autonomous AI Visibility Intelligence Report
+        </div>
+
+    </div>
+
+    <div class="metric-grid">
+
+        <div class="metric-card">
+
+            <div class="metric-title">
+                SEO Score
+            </div>
+
+            <div class="metric-value">
+                {scores.get('seo_score', 0)}
+            </div>
+
+        </div>
+
+        <div class="metric-card">
+
+            <div class="metric-title">
+                AI Visibility
+            </div>
+
+            <div class="metric-value">
+                {scores.get('ai_visibility_score', 0)}
+            </div>
+
+        </div>
+
+        <div class="metric-card">
+
+            <div class="metric-title">
+                GEO Score
+            </div>
+
+            <div class="metric-value">
+                {scores.get('geo_score', 0)}
+            </div>
+
+        </div>
+
+        <div class="metric-card">
+
+            <div class="metric-title">
+                Competitive Readiness
+            </div>
+
+            <div class="metric-value">
+                {scores.get('competitive_readiness', 0)}
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="section">
+
+        <h2>
+            Executive Intelligence Summary
+        </h2>
+
+        <p>
+            {executive_summary}
+        </p>
+
+    </div>
+
+    <div class="section">
+
+        <h2>
+            Technical SEO Audit
+        </h2>
+
+        {audit_html}
+
+    </div>
+
+    <div class="section">
+
+        <h2>
+            Orchestration Runtime
+        </h2>
+
+        <ul>
+
+            {orchestration_html}
+
+        </ul>
+
+    </div>
+
+    <div class="section">
+
+        <h2>
+            Strategic Recommendations
+        </h2>
+
+        <p>
+            {recommendations}
+        </p>
+
+    </div>
+
+    </body>
+
+    </html>
+    """
+
+    return html

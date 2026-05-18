@@ -1,13 +1,5 @@
 from tools.crawler import crawl_website
 
-from tools.dynamic_competitor_finder import (
-    discover_competitors
-)
-
-from tools.research_planner import (
-    build_research_plan
-)
-
 from tools.priority_action_engine import (
     build_priority_actions
 )
@@ -20,53 +12,56 @@ from tools.research_context_builder import (
     build_research_context
 )
 
-from tools.ai_overview_simulator import (
-    simulate_ai_overview
-)
-
-from tools.orchestration_executor import (
-    OrchestrationExecutor
-)
-
-from tools.reflection_engine import (
-    ReflectionEngine
-)
-
-from tools.recursive_refinement_engine import (
-    RecursiveRefinementEngine
-)
-
-from tools.task_planning_engine import (
-    TaskPlanningEngine
-)
-
-from tools.persistent_memory import (
-    PersistentMemory
-)
-
-from tools.orchestration_scoring_engine import (
-    OrchestrationScoringEngine
-)
-
-from tools.structured_section_generator import (
-
-    executive_summary,
-
-    ai_visibility_analysis,
-
-    competitor_analysis,
-
-    serp_analysis,
-
-    recommendations
-)
-
 from tools.scoring_engine import (
     calculate_scores
 )
 
-from tools.competitor_table_builder import (
-    build_competitor_table
+from tools.ai_overview_simulator import (
+    simulate_ai_overview
+)
+
+from tools.structured_section_generator import (
+    executive_summary,
+    generate_ai_visibility_section,
+    generate_competitor_section,
+    generate_serp_section,
+    generate_recommendations_section
+)
+
+from tools.reflection_engine import (
+    generate_reflections
+)
+
+from tools.recursive_refinement_engine import (
+    recursive_refinement
+)
+
+from tools.autonomous_expansion_engine import (
+    autonomous_expansion
+)
+
+from tools.orchestration_runtime import (
+    execute_orchestration
+)
+
+from tools.technical_audit_engine import (
+    generate_technical_audit
+)
+
+from tools.competitor_discovery import (
+    discover_competitors
+)
+
+from tools.geo_aeo_engine import (
+    generate_geo_aeo_analysis
+)
+
+from tools.competitor_crawler import (
+    crawl_competitors
+)
+
+from tools.competitor_scoring import (
+    score_competitors
 )
 
 
@@ -74,34 +69,22 @@ from tools.competitor_table_builder import (
 # MAIN AI STRATEGY ORCHESTRATOR
 # =========================================
 
-def run_ai_strategy(url, prompt):
+def run_ai_strategy(
+
+    url,
+
+    objective
+):
 
     # =====================================
-    # ORCHESTRATION EXECUTOR
+    # ORCHESTRATION EXECUTION
     # =====================================
 
-    executor = (
-        OrchestrationExecutor()
-    )
+    orchestration_results = execute_orchestration(
 
-    orchestration_results = (
-        executor.run()
-    )
+        url,
 
-    # =====================================
-    # PERSISTENT MEMORY
-    # =====================================
-
-    persistent_memory = (
-        PersistentMemory()
-    )
-
-    persistent_memory.store_execution(
-        orchestration_results
-    )
-
-    orchestration_history = (
-        persistent_memory.get_history()
+        objective
     )
 
     # =====================================
@@ -111,69 +94,68 @@ def run_ai_strategy(url, prompt):
     site_data = crawl_website(url)
 
     # =====================================
+    # TECHNICAL AUDIT
+    # =====================================
+
+    technical_audit = generate_technical_audit(
+
+        site_data
+    )
+
+    # =====================================
+    # GEO / AEO ANALYSIS
+    # =====================================
+
+    geo_aeo_analysis = generate_geo_aeo_analysis(
+
+        site_data
+    )
+
+    # =====================================
     # COMPETITOR DISCOVERY
     # =====================================
 
-    competitors = discover_competitors(url)
+    competitors = discover_competitors(
 
-    competitor_data = []
+        url,
 
-    for competitor in competitors:
-
-        try:
-
-            data = crawl_website(competitor)
-
-            competitor_data.append({
-
-                "url":
-                    competitor,
-
-                "seo_score":
-                    data["seo_score"],
-
-                "geo_score":
-                    data["geo_score"],
-
-                "word_count":
-                    data["word_count"],
-
-                "issues":
-                    data["issues"],
-
-                "schema_found":
-                    data["schema_found"]
-            })
-
-        except Exception:
-
-            pass
-
-    # =====================================
-    # RESEARCH PLAN
-    # =====================================
-
-    research_plan = build_research_plan(
-
-        site_data,
-
-        competitor_data
+        site_data
     )
 
     # =====================================
-    # ACTIONS
+    # COMPETITOR CRAWLING
     # =====================================
 
-    priority_actions = (
-        build_priority_actions(
-            site_data
-        )
+    crawled_competitors = crawl_competitors(
+
+        competitors
     )
 
-    action_matrix = (
-        build_action_matrix(
-            priority_actions
-        )
+    # =====================================
+    # COMPETITOR SCORING
+    # =====================================
+
+    competitor_data = score_competitors(
+
+        crawled_competitors
+    )
+
+    # =====================================
+    # PRIORITY ACTIONS
+    # =====================================
+
+    priority_actions = build_priority_actions(
+
+        site_data
+    )
+
+    # =====================================
+    # ACTION MATRIX
+    # =====================================
+
+    action_matrix = build_action_matrix(
+
+        priority_actions
     )
 
     # =====================================
@@ -188,24 +170,12 @@ def run_ai_strategy(url, prompt):
     )
 
     # =====================================
-    # BUSINESS SCORING
+    # SCORES
     # =====================================
 
     scores = calculate_scores(
+
         research_context
-    )
-
-    # =====================================
-    # COMPETITOR TABLE
-    # =====================================
-
-    competitor_table = (
-        build_competitor_table(
-
-            site_data,
-
-            competitor_data
-        )
     )
 
     # =====================================
@@ -213,214 +183,141 @@ def run_ai_strategy(url, prompt):
     # =====================================
 
     ai_overview = simulate_ai_overview(
+
         site_data
     )
 
     # =====================================
-    # REFLECTION
+    # REFLECTIONS
     # =====================================
 
-    reflection_engine = (
-        ReflectionEngine()
-    )
+    reflections = generate_reflections(
 
-    reflections = (
-        reflection_engine.evaluate(
-            orchestration_results
-        )
+        orchestration_results
     )
 
     # =====================================
     # RECURSIVE REFINEMENT
     # =====================================
 
-    refinement_engine = (
-        RecursiveRefinementEngine()
-    )
+    recursive_results = recursive_refinement(
 
-    should_refine = (
-        refinement_engine.should_refine(
-            reflections
-        )
-    )
-
-    refinement_actions = (
-        refinement_engine.generate_refinements(
-            reflections
-        )
+        orchestration_results
     )
 
     # =====================================
     # AUTONOMOUS TASKS
     # =====================================
 
-    task_engine = (
-        TaskPlanningEngine()
-    )
+    autonomous_tasks = autonomous_expansion(
 
-    autonomous_tasks = (
-        task_engine.generate_tasks(
-
-            reflections,
-
-            orchestration_results[
-                "shared_memory"
-            ]
-        )
+        orchestration_results
     )
 
     # =====================================
-    # ORCHESTRATION SCORING
+    # EXECUTIVE SUMMARY
     # =====================================
 
-    orchestration_scoring = (
-        OrchestrationScoringEngine()
-    )
+    executive = executive_summary(
 
-    orchestration_metrics = (
-
-        orchestration_scoring
-        .calculate_score(
-
-            orchestration_results,
-
-            reflections,
-
-            autonomous_tasks
-        )
+        research_context
     )
 
     # =====================================
-    # CLEANER
+    # AI VISIBILITY SECTION
     # =====================================
 
-    def clean_text(text):
+    ai_visibility = generate_ai_visibility_section(
 
-        if not isinstance(text, str):
+        site_data,
 
-            return text
-
-        return (
-
-            text
-
-            .replace("###", "")
-
-            .replace("**", "")
-
-            .replace("```", "")
-
-            .strip()
-        )
-
-    # =====================================
-    # REPORT TEXT
-    # =====================================
-
-    executive_summary_text = clean_text(
-
-        executive_summary(
-            research_context
-        )
-    )
-
-    ai_visibility_text = clean_text(
-
-        ai_visibility_analysis(
-            research_context
-        )
-    )
-
-    competitor_analysis_text = clean_text(
-
-        competitor_analysis(
-
-            research_context,
-
-            competitor_data
-        )
-    )
-
-    serp_analysis_text = clean_text(
-
-        serp_analysis(
-            research_context
-        )
-    )
-
-    recommendations_text = clean_text(
-
-        recommendations(
-            research_context
-        )
-    )
-
-    ai_overview_text = clean_text(
-        ai_overview
+        scores
     )
 
     # =====================================
-    # FINAL REPORT
+    # COMPETITOR SECTION
     # =====================================
 
-    report = {
+    competitor_section = generate_competitor_section(
 
-        "orchestration_results":
-            orchestration_results,
-
-        "orchestration_history":
-            orchestration_history,
-
-        "orchestration_metrics":
-            orchestration_metrics,
-
-        "reflections":
-            reflections,
-
-        "recursive_refinement": {
-
-            "should_refine":
-                should_refine,
-
-            "actions":
-                refinement_actions
+        {
+            "competitors": competitor_data
         },
 
-        "autonomous_tasks":
-            autonomous_tasks,
+        scores
+    )
 
-        "scores":
-            scores,
+    # =====================================
+    # SERP SECTION
+    # =====================================
 
-        "research_plan":
-            research_plan,
+    serp_section = generate_serp_section(
 
-        "priority_actions":
-            priority_actions,
+        site_data,
 
-        "action_matrix":
-            action_matrix,
+        scores
+    )
 
-        "ai_overview":
-            ai_overview_text,
+    # =====================================
+    # RECOMMENDATIONS
+    # =====================================
 
-        "executive_summary":
-            executive_summary_text,
+    recommendations = generate_recommendations_section(
 
-        "ai_visibility":
-            ai_visibility_text,
+        priority_actions
+    )
 
-        "competitor_analysis":
-            competitor_analysis_text,
+    # =====================================
+    # FINAL OUTPUT
+    # =====================================
 
-        "competitor_table":
-            competitor_table,
+    return {
 
-        "serp_analysis":
-            serp_analysis_text,
+        "site_data": site_data,
 
-        "recommendations":
-            recommendations_text
+        "technical_audit": technical_audit,
+
+        "geo_aeo_analysis": geo_aeo_analysis,
+
+        "scores": scores,
+
+        "research_context": research_context,
+
+        "priority_actions": priority_actions,
+
+        "action_matrix": action_matrix,
+
+        "ai_overview": ai_overview,
+
+        "executive_summary": executive,
+
+        "ai_visibility": ai_visibility,
+
+        "competitor_analysis": competitor_section,
+
+        "competitor_data": competitor_data,
+
+        "serp_analysis": serp_section,
+
+        "recommendations": recommendations,
+
+        "reflections": reflections,
+
+        "recursive_refinement": recursive_results,
+
+        "autonomous_tasks": autonomous_tasks,
+
+        "orchestration_results": orchestration_results,
+
+        "orchestration_history":
+            orchestration_results.get(
+                "execution_log",
+                []
+            ),
+
+        "orchestration_metrics":
+            orchestration_results.get(
+                "orchestration_metrics",
+                {}
+            )
     }
-
-    return report

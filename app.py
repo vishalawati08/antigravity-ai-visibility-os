@@ -1,4 +1,3 @@
-import time
 import streamlit as st
 
 from tools.orchestrator import (
@@ -9,20 +8,18 @@ from tools.html_report_renderer import (
     render_html_report
 )
 
+from tools.pdf_exporter import (
+    export_pdf_report
+)
+
 
 # =========================================
 # PAGE CONFIG
 # =========================================
 
 st.set_page_config(
-
     page_title="AI Visibility OS",
-
-    page_icon="🧠",
-
-    layout="wide",
-
-    initial_sidebar_state="expanded"
+    layout="wide"
 )
 
 
@@ -30,504 +27,199 @@ st.set_page_config(
 # SESSION STATE
 # =========================================
 
-if "messages" not in st.session_state:
-
-    st.session_state.messages = []
-
 if "report" not in st.session_state:
 
     st.session_state.report = None
 
+if "html_report" not in st.session_state:
+
+    st.session_state.html_report = None
+
 
 # =========================================
-# CLEAN MODERN CSS
+# CUSTOM CSS
 # =========================================
 
 st.markdown(
-
     """
-
     <style>
 
-    /* ====================================
-       GLOBAL
-    ==================================== */
-
-    .stApp {
-
+    .main {
         background-color: #F5F7FB;
+    }
 
+    .hero {
+        padding-top: 20px;
+        padding-bottom: 30px;
+    }
+
+    .hero-title {
+        font-size: 58px;
+        font-weight: 700;
         color: #111827;
+        margin-bottom: 10px;
     }
 
-    /* ====================================
-       SIDEBAR
-    ==================================== */
-
-    section[data-testid="stSidebar"] {
-
-        background-color: #FFFFFF;
-
-        border-right: 1px solid #E5E7EB;
+    .hero-subtitle {
+        font-size: 20px;
+        color: #6B7280;
+        max-width: 900px;
     }
 
-    section[data-testid="stSidebar"] * {
-
-        color: #111827 !important;
-    }
-
-    /* ====================================
-       USER MESSAGE
-    ==================================== */
-
-    .user-bubble {
-
-        background-color: #4F46E5;
-
-        color: white;
-
-        padding: 14px 18px;
-
-        border-radius: 18px;
-
-        margin-top: 18px;
-
-        margin-bottom: 14px;
-
-        width: fit-content;
-
-        max-width: 75%;
-
-        margin-left: auto;
-
-        font-size: 15px;
-
-        box-shadow:
-            0 2px 8px rgba(79,70,229,0.12);
-    }
-
-    /* ====================================
-       EXECUTION BOX
-    ==================================== */
-
-    .execution-box {
-
-        background-color: white;
-
+    .input-card {
+        background: white;
+        padding: 30px;
+        border-radius: 22px;
         border: 1px solid #E5E7EB;
-
-        border-radius: 16px;
-
-        padding: 18px;
-
         margin-top: 20px;
-
-        margin-bottom: 20px;
-
-        color: #374151;
-
-        font-size: 15px;
-    }
-
-    /* ====================================
-       METRIC CARDS
-    ==================================== */
-
-    div[data-testid="metric-container"] {
-
-        background-color: white;
-
-        border: 1px solid #E5E7EB;
-
-        padding: 18px;
-
-        border-radius: 16px;
-    }
-
-    /* ====================================
-       CHAT INPUT
-    ==================================== */
-
-    .stChatInputContainer {
-
-        background-color: #F5F7FB;
-    }
-
-    textarea {
-
-        background-color: white !important;
-
-        border: 1px solid #E5E7EB !important;
-
-        color: #111827 !important;
-
-        border-radius: 16px !important;
-    }
-
-    /* ====================================
-       BUTTONS
-    ==================================== */
-
-    .stButton button {
-
-        background-color: #4F46E5;
-
-        color: white;
-
-        border-radius: 12px;
-
-        border: none;
-    }
-
-    /* ====================================
-       SCROLLBAR
-    ==================================== */
-
-    ::-webkit-scrollbar {
-
-        width: 10px;
-    }
-
-    ::-webkit-scrollbar-track {
-
-        background: #F3F4F6;
-    }
-
-    ::-webkit-scrollbar-thumb {
-
-        background: #D1D5DB;
-
-        border-radius: 20px;
+        margin-bottom: 30px;
     }
 
     </style>
-
     """,
-
     unsafe_allow_html=True
 )
 
 
 # =========================================
-# SIDEBAR
+# HERO SECTION
 # =========================================
 
-with st.sidebar:
+st.markdown(
+    """
+    <div class="hero">
 
-    st.title("🧠 AI Visibility OS")
+        <div class="hero-title">
+            AI Visibility OS
+        </div>
 
-    st.caption(
-        "Autonomous orchestration intelligence"
-    )
+        <div class="hero-subtitle">
+            Enterprise-grade AI Visibility,
+            SEO and GEO/AEO Intelligence Platform.
+            Analyze websites, benchmark competitors,
+            identify semantic gaps and generate
+            executive intelligence reports.
+        </div>
 
-    st.divider()
-
-    st.markdown("### Active Capabilities")
-
-    st.markdown(
-
-        """
-        - SEO Intelligence
-        - GEO/AEO Analysis
-        - AI Visibility Scoring
-        - Competitive Analysis
-        - Autonomous Recommendations
-        - Persistent Intelligence
-        """
-    )
-
-    st.divider()
-
-    st.markdown("### Runtime Status")
-
-    st.success(
-        "AI Runtime Active"
-    )
-
-    st.info(
-        "Persistent Memory Enabled"
-    )
-
-
-# =========================================
-# MAIN HEADER
-# =========================================
-
-st.title("🧠 AI Visibility OS")
-
-st.caption(
-    "Conversational Autonomous Orchestration Intelligence"
+    </div>
+    """,
+    unsafe_allow_html=True
 )
 
-st.write("")
+
+# =========================================
+# INPUT SECTION
+# =========================================
+
+st.markdown(
+    "<div class='input-card'>",
+    unsafe_allow_html=True
+)
+
+url = st.text_input(
+    "Website URL",
+    placeholder="https://example.com"
+)
+
+prompt = st.text_area(
+    "Audit Objective",
+    placeholder="Example: Analyze AI visibility, SEO maturity, GEO/AEO readiness and competitor benchmarking.",
+    height=140
+)
+
+run_button = st.button(
+    "Generate Executive Intelligence Report",
+    use_container_width=True
+)
+
+st.markdown(
+    "</div>",
+    unsafe_allow_html=True
+)
 
 
 # =========================================
-# CHAT HISTORY
+# RUN ANALYSIS
 # =========================================
 
-for message in st.session_state.messages:
+if run_button:
 
-    if message["role"] == "user":
+    if not url:
 
-        st.markdown(
-
-            f"""
-            <div class="user-bubble">
-            {message['content']}
-            </div>
-            """,
-
-            unsafe_allow_html=True
+        st.error(
+            "Please enter a website URL."
         )
 
     else:
 
-        with st.container():
+        if not prompt:
 
-            st.write(message["content"])
+            prompt = (
+                "Analyze SEO maturity, AI visibility, "
+                "GEO/AEO readiness and competitive positioning."
+            )
 
-
-# =========================================
-# CHAT INPUT
-# =========================================
-
-prompt = st.chat_input(
-
-    "Analyze a website for AI visibility intelligence..."
-)
-
-
-# =========================================
-# EXECUTION
-# =========================================
-
-if prompt:
-
-    # =====================================
-    # SAVE USER MESSAGE
-    # =====================================
-
-    st.session_state.messages.append({
-
-        "role": "user",
-
-        "content": prompt
-    })
-
-    st.markdown(
-
-        f"""
-        <div class="user-bubble">
-        {prompt}
-        </div>
-        """,
-
-        unsafe_allow_html=True
-    )
-
-    # =====================================
-    # URL EXTRACTION
-    # =====================================
-
-    website_url = "https://example.com"
-
-    words = prompt.split()
-
-    for word in words:
-
-        if (
-            "http" in word
-            or
-            ".com" in word
+        with st.spinner(
+            "Running AI Visibility Intelligence Analysis..."
         ):
 
-            website_url = word
+            try:
 
-            break
-
-    # =====================================
-    # LIVE EXECUTION FEED
-    # =====================================
-
-    execution_placeholder = st.empty()
-
-    execution_logs = [
-
-        "🧠 Initializing orchestration runtime...",
-
-        "🔍 Evaluating technical SEO signals...",
-
-        "🌐 Running GEO/AEO intelligence analysis...",
-
-        "📊 Analyzing competitive positioning...",
-
-        "⚡ Expanding orchestration workflows...",
-
-        "📈 Generating intelligence report..."
-    ]
-
-    live_html = ""
-
-    for log in execution_logs:
-
-        live_html += f"<p>{log}</p>"
-
-        execution_placeholder.markdown(
-
-            f"""
-            <div class="execution-box">
-            {live_html}
-            </div>
-            """,
-
-            unsafe_allow_html=True
-        )
-
-        time.sleep(0.5)
-
-    # =====================================
-    # RUN ANALYSIS
-    # =====================================
-
-    with st.spinner(
-
-        "Executing orchestration intelligence..."
-    ):
-
-        try:
-
-            report = run_ai_strategy(
-
-                website_url,
-
-                prompt
-            )
-
-            st.session_state.report = report
-
-            orchestration_score = (
-
-                report[
-                    "orchestration_metrics"
-                ][
-                    "orchestration_score"
-                ]
-            )
-
-            scores = report["scores"]
-
-            # =============================
-            # METRICS
-            # =============================
-
-            st.write("")
-
-            col1, col2, col3, col4 = st.columns(4)
-
-            with col1:
-
-                st.metric(
-                    "SEO",
-                    scores["seo_score"]
+                report = run_ai_strategy(
+                    url,
+                    prompt
                 )
 
-            with col2:
-
-                st.metric(
-                    "AI Visibility",
-                    scores[
-                        "ai_visibility_score"
-                    ]
-                )
-
-            with col3:
-
-                st.metric(
-                    "Competitive",
-                    scores[
-                        "competitive_readiness"
-                    ]
-                )
-
-            with col4:
-
-                st.metric(
-                    "Orchestration",
-                    orchestration_score
-                )
-
-            st.write("")
-
-            # =============================
-            # EXEC SUMMARY
-            # =============================
-
-            st.subheader(
-                "Executive Intelligence Summary"
-            )
-
-            st.write(
-                report["executive_summary"]
-            )
-
-            st.write("")
-
-            # =============================
-            # FULL REPORT
-            # =============================
-
-            html_report = (
-                render_html_report(
+                html_report = render_html_report(
                     report
                 )
-            )
 
-            with st.expander(
-                "Open Full Intelligence Report"
-            ):
+                st.session_state.report = report
 
-                st.components.v1.html(
+                st.session_state.html_report = html_report
 
-                    html_report,
+            except Exception as error:
 
-                    height=5000,
-
-                    scrolling=True
+                st.error(
+                    f"Analysis failed: {str(error)}"
                 )
 
-            # =============================
-            # DOWNLOAD
-            # =============================
+
+# =========================================
+# REPORT DISPLAY
+# =========================================
+
+if st.session_state.html_report:
+
+    st.html(
+        st.session_state.html_report
+    )
+
+
+# =========================================
+# PDF EXPORT
+# =========================================
+
+if st.session_state.report:
+
+    try:
+
+        pdf_path = export_pdf_report(
+            st.session_state.report
+        )
+
+        with open(pdf_path, "rb") as pdf_file:
 
             st.download_button(
-
-                label="Download Full HTML Report",
-
-                data=html_report,
-
-                file_name="ai_visibility_report.html",
-
-                mime="text/html"
+                label="Download Executive PDF Report",
+                data=pdf_file,
+                file_name="ai_visibility_report.pdf",
+                mime="application/pdf",
+                use_container_width=True
             )
 
-            # =============================
-            # SAVE ASSISTANT MESSAGE
-            # =============================
+    except Exception as error:
 
-            st.session_state.messages.append({
-
-                "role": "assistant",
-
-                "content": (
-                    "Autonomous orchestration completed successfully."
-                )
-            })
-
-        except Exception as error:
-
-            st.error(
-                f"Execution Error: {error}"
-            )
-
-            st.exception(error)
+        st.warning(
+            f"PDF export failed: {str(error)}"
+        )
