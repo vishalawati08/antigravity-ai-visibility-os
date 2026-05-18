@@ -51,7 +51,7 @@ def analyze_page(
         data["title"] = soup.title.text.strip()
 
     # =====================================
-    # META
+    # META DESCRIPTION
     # =====================================
 
     meta = soup.find(
@@ -67,7 +67,7 @@ def analyze_page(
         )
 
     # =====================================
-    # HEADINGS
+    # H1 TAGS
     # =====================================
 
     data["h1_tags"] = [
@@ -76,6 +76,10 @@ def analyze_page(
 
         for h in soup.find_all("h1")
     ]
+
+    # =====================================
+    # H2 TAGS
+    # =====================================
 
     data["h2_tags"] = [
 
@@ -104,7 +108,7 @@ def analyze_page(
     )
 
     # =====================================
-    # SCHEMA
+    # SCHEMA DETECTION
     # =====================================
 
     schema_tags = soup.find_all(
@@ -143,7 +147,7 @@ def analyze_page(
             data["faq_detected"] = True
 
     # =====================================
-    # LINKS
+    # INTERNAL LINKS
     # =====================================
 
     parsed_domain = urlparse(url).netloc
@@ -217,7 +221,9 @@ def crawl_website(url):
 
                         current_url,
 
-                        timeout=45000
+                        timeout=45000,
+
+                        wait_until="domcontentloaded"
                     )
 
                     html = page.content()
@@ -254,7 +260,7 @@ def crawl_website(url):
                                 link
                             )
 
-                except:
+                except Exception:
 
                     continue
 
@@ -266,15 +272,74 @@ def crawl_website(url):
 
             "url": url,
 
-            "crawl_error": str(error),
+            "title": "",
+
+            "meta_description": "",
+
+            "h1_tags": [],
+
+            "h2_tags": [],
+
+            "paragraphs": [],
+
+            "internal_links": [],
+
+            "word_count": 0,
+
+            "schema_found": False,
+
+            "faq_detected": False,
+
+            "content_depth": "Low",
+
+            "ai_readiness": "Low",
 
             "technical_findings": [
-                str(error)
+
+                f"Crawler failed: {str(error)}"
             ]
         }
 
     # =====================================
-    # AGGREGATE SITE DATA
+    # SAFETY CHECK
+    # =====================================
+
+    if len(crawled_pages) == 0:
+
+        return {
+
+            "url": url,
+
+            "title": "",
+
+            "meta_description": "",
+
+            "h1_tags": [],
+
+            "h2_tags": [],
+
+            "paragraphs": [],
+
+            "internal_links": [],
+
+            "word_count": 0,
+
+            "schema_found": False,
+
+            "faq_detected": False,
+
+            "content_depth": "Low",
+
+            "ai_readiness": "Low",
+
+            "technical_findings": [
+
+                "Crawler could not extract any pages."
+            ]
+        }
+
+    # =====================================
+    # AGGREGATE DATA
     # =====================================
 
     total_word_count = sum(
