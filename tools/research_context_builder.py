@@ -4,97 +4,270 @@
 
 def build_research_context(
 
-    site_data,
+    crawl_data,
+
+    geo_analysis,
 
     competitor_data
 ):
 
     # =====================================
-    # COMPETITOR AVERAGE
+    # SAFE DEFAULTS
     # =====================================
 
-    competitor_average = 0
+    if not isinstance(
+        crawl_data,
+        dict
+    ):
 
-    if competitor_data:
+        crawl_data = {}
 
-        competitor_average = (
+    if not isinstance(
+        competitor_data,
+        list
+    ):
 
-            sum(
-
-                competitor.get(
-                    "seo_score",
-                    0
-                )
-
-                for competitor in competitor_data
-
-                if isinstance(
-                    competitor,
-                    dict
-                )
-
-            )
-
-            / len(competitor_data)
-        )
+        competitor_data = []
 
     # =====================================
-    # TITLE
+    # BASIC EXTRACTION
     # =====================================
 
-    title_present = bool(
+    word_count = crawl_data.get(
+        "word_count",
+        0
+    )
 
-        site_data.get(
-            "title"
-        )
+    schema_found = crawl_data.get(
+        "schema_found",
+        False
+    )
+
+    faq_detected = crawl_data.get(
+        "faq_detected",
+        False
+    )
+
+    ai_readiness = crawl_data.get(
+        "ai_readiness",
+        "Low"
+    )
+
+    crawl_confidence = crawl_data.get(
+        "crawl_confidence",
+        "Low"
+    )
+
+    pages_crawled = crawl_data.get(
+        "pages_crawled",
+        1
     )
 
     # =====================================
-    # META DESCRIPTION
+    # PAGE AGGREGATION
     # =====================================
 
-    meta_description_present = bool(
-
-        site_data.get(
-            "meta_description"
-        )
+    all_pages = crawl_data.get(
+        "all_pages",
+        []
     )
 
-    # =====================================
-    # H1 COUNT
-    # =====================================
+    total_h1 = 0
 
-    h1_count = len(
+    total_h2 = 0
 
-        site_data.get(
+    total_paragraphs = 0
+
+    total_internal_links = 0
+
+    semantic_richness = 0
+
+    for page in all_pages:
+
+        if not isinstance(
+            page,
+            dict
+        ):
+
+            continue
+
+        h1_tags = page.get(
             "h1_tags",
             []
         )
-    )
 
-    # =====================================
-    # H2 COUNT
-    # =====================================
-
-    h2_count = len(
-
-        site_data.get(
+        h2_tags = page.get(
             "h2_tags",
             []
         )
-    )
 
-    # =====================================
-    # INTERNAL LINKS
-    # =====================================
+        paragraphs = page.get(
+            "paragraphs",
+            []
+        )
 
-    internal_link_count = len(
-
-        site_data.get(
+        internal_links = page.get(
             "internal_links",
             []
         )
-    )
+
+        total_h1 += len(
+            h1_tags
+        )
+
+        total_h2 += len(
+            h2_tags
+        )
+
+        total_paragraphs += len(
+            paragraphs
+        )
+
+        total_internal_links += len(
+            internal_links
+        )
+
+        # =================================
+        # SEMANTIC RICHNESS
+        # =================================
+
+        page_semantics = (
+
+            len(h2_tags) * 2
+
+            +
+
+            len(paragraphs) * 0.5
+        )
+
+        semantic_richness += page_semantics
+
+    # =====================================
+    # NORMALIZATION
+    # =====================================
+
+    if pages_crawled > 0:
+
+        average_h2 = round(
+
+            total_h2 / pages_crawled
+        )
+
+    else:
+
+        average_h2 = total_h2
+
+    # =====================================
+    # CONTENT DEPTH
+    # =====================================
+
+    content_depth = "Low"
+
+    if word_count > 12000:
+
+        content_depth = "High"
+
+    elif word_count > 5000:
+
+        content_depth = "Medium"
+
+    # =====================================
+    # SEMANTIC MATURITY
+    # =====================================
+
+    semantic_maturity = "Low"
+
+    if semantic_richness > 120:
+
+        semantic_maturity = "High"
+
+    elif semantic_richness > 50:
+
+        semantic_maturity = "Medium"
+
+    # =====================================
+    # GEO MATURITY
+    # =====================================
+
+    geo_maturity = "Low"
+
+    if isinstance(
+        geo_analysis,
+        list
+    ):
+
+        geo_positive = 0
+
+        for item in geo_analysis:
+
+            if not isinstance(
+                item,
+                dict
+            ):
+
+                continue
+
+            status = item.get(
+                "status",
+                ""
+            ).lower()
+
+            if status in [
+
+                "good",
+
+                "strong",
+
+                "optimized"
+            ]:
+
+                geo_positive += 1
+
+        if geo_positive >= 5:
+
+            geo_maturity = "High"
+
+        elif geo_positive >= 2:
+
+            geo_maturity = "Medium"
+
+    # =====================================
+    # COMPETITOR AVERAGE
+    # =====================================
+
+    competitor_scores = []
+
+    for competitor in competitor_data:
+
+        if not isinstance(
+            competitor,
+            dict
+        ):
+
+            continue
+
+        competitor_scores.append(
+
+            competitor.get(
+                "seo_score",
+                60
+            )
+        )
+
+    if len(competitor_scores) > 0:
+
+        competitor_average = round(
+
+            sum(competitor_scores)
+
+            /
+
+            len(competitor_scores)
+        )
+
+    else:
+
+        competitor_average = 60
 
     # =====================================
     # FINAL CONTEXT
@@ -102,116 +275,51 @@ def build_research_context(
 
     return {
 
-        # BASIC
-
-        "url":
-            site_data.get(
-                "url",
-                ""
-            ),
-
-        "title":
-            site_data.get(
-                "title",
-                ""
-            ),
-
-        "meta_description":
-            site_data.get(
-                "meta_description",
-                ""
-            ),
-
-        # PRESENCE FLAGS
-
-        "title_present":
-            title_present,
-
-        "meta_description_present":
-            meta_description_present,
-
-        # CONTENT
-
         "word_count":
-            site_data.get(
-                "word_count",
-                0
-            ),
-
-        "content_depth":
-            site_data.get(
-                "content_depth",
-                "Low"
-            ),
-
-        # STRUCTURE
-
-        "h1_count":
-            h1_count,
-
-        "h2_count":
-            h2_count,
+            word_count,
 
         "schema_found":
-            site_data.get(
-                "schema_found",
-                False
-            ),
+            schema_found,
 
         "faq_detected":
-            site_data.get(
-                "faq_detected",
-                False
-            ),
-
-        # LINKS
-
-        "internal_link_count":
-            internal_link_count,
-
-        # IMAGES
-
-        "images_missing_alt":
-            site_data.get(
-                "images_missing_alt",
-                0
-            ),
-
-        # AI READINESS
+            faq_detected,
 
         "ai_readiness":
-            site_data.get(
-                "ai_readiness",
-                "Low"
-            ),
+            ai_readiness,
 
-        # COMPETITION
+        "crawl_confidence":
+            crawl_confidence,
+
+        "pages_crawled":
+            pages_crawled,
+
+        "total_h1":
+            total_h1,
+
+        "total_h2":
+            total_h2,
+
+        "average_h2":
+            average_h2,
+
+        "total_paragraphs":
+            total_paragraphs,
+
+        "internal_links":
+            total_internal_links,
+
+        "semantic_richness":
+            semantic_richness,
+
+        "semantic_maturity":
+            semantic_maturity,
+
+        "content_depth":
+            content_depth,
+
+        "geo_maturity":
+            geo_maturity,
 
         "competitor_average":
-            competitor_average,
-
-        "competitor_count":
-            len(competitor_data),
-
-        # TECHNICAL
-
-        "canonical":
-            site_data.get(
-                "canonical",
-                ""
-            ),
-
-        "robots_meta":
-            site_data.get(
-                "robots_meta",
-                ""
-            ),
-
-        # RAW FINDINGS
-
-        "technical_findings":
-            site_data.get(
-                "technical_findings",
-                []
-            )
+            competitor_average
     }

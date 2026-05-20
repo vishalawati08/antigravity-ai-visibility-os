@@ -1,207 +1,170 @@
 # =========================================
-# GEO / AEO INTELLIGENCE ENGINE
+# GEO / AEO ANALYSIS ENGINE
 # =========================================
 
-def generate_geo_aeo_analysis(
+def analyze_geo_aeo(
 
-    site_data
+    crawl_data
 ):
 
-    findings = []
+    results = []
 
     # =====================================
     # FAQ ANALYSIS
     # =====================================
 
-    if site_data.get("faq_detected"):
+    if crawl_data.get(
+        "faq_detected",
+        False
+    ):
 
-        findings.append({
+        results.append({
 
-            "status": "Positive",
+            "category":
+                "FAQ Readiness",
 
-            "category": "FAQ Optimization",
+            "status":
+                "Strong",
 
             "details":
-                "FAQ-style content detected. "
-                "This improves AI answer extraction "
-                "and conversational discoverability."
+                "FAQ-style content detected, improving AI-answer discoverability."
         })
 
     else:
 
-        findings.append({
+        results.append({
 
-            "status": "Opportunity",
+            "category":
+                "FAQ Readiness",
 
-            "category": "FAQ Optimization",
+            "status":
+                "Weak",
 
             "details":
-                "No FAQ-focused semantic structure detected. "
-                "Adding FAQ content may improve "
-                "AI-generated answer visibility."
+                "No FAQ structures detected. AI-answer readiness may be limited."
+        })
+
+    # =====================================
+    # SCHEMA ANALYSIS
+    # =====================================
+
+    if crawl_data.get(
+        "schema_found",
+        False
+    ):
+
+        results.append({
+
+            "category":
+                "Structured Data",
+
+            "status":
+                "Strong",
+
+            "details":
+                "Structured data detected, improving machine readability and semantic understanding."
+        })
+
+    else:
+
+        results.append({
+
+            "category":
+                "Structured Data",
+
+            "status":
+                "Weak",
+
+            "details":
+                "No structured schema markup detected."
         })
 
     # =====================================
     # CONTENT DEPTH
     # =====================================
 
-    word_count = site_data.get(
+    word_count = crawl_data.get(
         "word_count",
         0
     )
 
-    if word_count > 2000:
+    if word_count > 8000:
 
-        findings.append({
+        status = "Strong"
 
-            "status": "Positive",
+    elif word_count > 3000:
 
-            "category": "Topical Authority",
-
-            "details":
-                "Strong content depth detected, "
-                "supporting AI-topic understanding."
-        })
-
-    elif word_count < 800:
-
-        findings.append({
-
-            "status": "Risk",
-
-            "category": "Topical Authority",
-
-            "details":
-                "Thin content may reduce "
-                "AI citation potential."
-        })
-
-    # =====================================
-    # SCHEMA
-    # =====================================
-
-    if site_data.get("schema_found"):
-
-        findings.append({
-
-            "status": "Positive",
-
-            "category": "Structured Entities",
-
-            "details":
-                "Schema markup detected, improving "
-                "machine readability and entity extraction."
-        })
+        status = "Moderate"
 
     else:
 
-        findings.append({
+        status = "Weak"
 
-            "status": "Opportunity",
+    results.append({
 
-            "category": "Structured Entities",
+        "category":
+            "Content Depth",
 
-            "details":
-                "No structured schema detected. "
-                "JSON-LD schema improves AI understanding."
-        })
+        "status":
+            status,
+
+        "details":
+            f"Website contains approximately {word_count} analyzed words."
+    })
 
     # =====================================
-    # HEADINGS
+    # SEMANTIC STRUCTURE
     # =====================================
 
     h2_count = len(
 
-        site_data.get(
+        crawl_data.get(
             "h2_tags",
             []
         )
     )
 
-    if h2_count >= 5:
+    if h2_count >= 10:
 
-        findings.append({
+        status = "Strong"
 
-            "status": "Positive",
+    elif h2_count >= 5:
 
-            "category": "Semantic Structure",
-
-            "details":
-                "Strong heading hierarchy supports "
-                "AI semantic parsing."
-        })
+        status = "Moderate"
 
     else:
 
-        findings.append({
+        status = "Weak"
 
-            "status": "Opportunity",
+    results.append({
 
-            "category": "Semantic Structure",
+        "category":
+            "Semantic Structure",
 
-            "details":
-                "Limited semantic heading structure detected."
-        })
+        "status":
+            status,
+
+        "details":
+            f"{h2_count} semantic H2 structures detected."
+    })
 
     # =====================================
     # AI READINESS
     # =====================================
 
-    ai_readiness = site_data.get(
-        "ai_readiness",
-        "Low"
-    )
+    results.append({
 
-    findings.append({
+        "category":
+            "AI Readiness",
 
-        "status": "Analysis",
-
-        "category": "AI Readiness",
+        "status":
+            crawl_data.get(
+                "ai_readiness",
+                "Low"
+            ),
 
         "details":
-            f"Overall AI readiness classified as {ai_readiness}."
+            "AI-answer readiness estimated based on semantic architecture and machine-readable content."
     })
 
-    # =====================================
-    # ANSWER EXTRACTION
-    # =====================================
-
-    paragraphs = site_data.get(
-        "paragraphs",
-        []
-    )
-
-    short_paragraphs = 0
-
-    for para in paragraphs:
-
-        if len(para.split()) < 60:
-
-            short_paragraphs += 1
-
-    if short_paragraphs >= 5:
-
-        findings.append({
-
-            "status": "Positive",
-
-            "category": "Answer Extraction",
-
-            "details":
-                "Short-form informational blocks detected. "
-                "This may improve AI answer extraction."
-        })
-
-    else:
-
-        findings.append({
-
-            "status": "Opportunity",
-
-            "category": "Answer Extraction",
-
-            "details":
-                "Consider adding concise answer-focused sections."
-        })
-
-    return findings
+    return results

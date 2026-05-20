@@ -9,9 +9,8 @@ from tools.html_report_renderer import (
 )
 
 from tools.pdf_exporter import (
-    export_pdf_report
+    export_pdf
 )
-
 
 # =========================================
 # PAGE CONFIG
@@ -204,7 +203,7 @@ if st.session_state.report:
 
     try:
 
-        pdf_path = export_pdf_report(
+        pdf_path = export_pdf(
             st.session_state.report
         )
 

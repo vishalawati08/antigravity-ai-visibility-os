@@ -1,13 +1,69 @@
-from playwright.sync_api import sync_playwright
+import requests
+
+import cloudscraper
+
 from bs4 import BeautifulSoup
-from urllib.parse import urlparse, urljoin
+
+from urllib.parse import urljoin
+
+import random
+
+import time
 
 
 # =========================================
-# PAGE ANALYZER
+# SELENIUM
 # =========================================
 
-def analyze_page(
+from selenium import webdriver
+
+from selenium.webdriver.chrome.service import Service
+
+from selenium.webdriver.chrome.options import Options
+
+from webdriver_manager.chrome import ChromeDriverManager
+
+
+# =========================================
+# USER AGENTS
+# =========================================
+
+USER_AGENTS = [
+
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0 Safari/537.36",
+
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
+]
+
+
+# =========================================
+# RANDOM HEADERS
+# =========================================
+
+def get_headers():
+
+    return {
+
+        "User-Agent":
+            random.choice(
+                USER_AGENTS
+            ),
+
+        "Accept":
+            "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+
+        "Accept-Language":
+            "en-US,en;q=0.5"
+    }
+
+
+# =========================================
+# EXTRACTION
+# =========================================
+
+def extract_page_data(
 
     html,
 
@@ -16,364 +72,363 @@ def analyze_page(
 
     soup = BeautifulSoup(
         html,
-        "html.parser"
+        "lxml"
     )
 
-    data = {
-
-        "url": url,
-
-        "title": "",
-
-        "meta_description": "",
-
-        "h1_tags": [],
-
-        "h2_tags": [],
-
-        "paragraphs": [],
-
-        "internal_links": [],
-
-        "word_count": 0,
-
-        "schema_found": False,
-
-        "faq_detected": False
-    }
-
-    # =====================================
-    # TITLE
-    # =====================================
-
-    if soup.title:
-
-        data["title"] = soup.title.text.strip()
-
-    # =====================================
-    # META DESCRIPTION
-    # =====================================
-
-    meta = soup.find(
-        "meta",
-        attrs={"name": "description"}
-    )
-
-    if meta:
-
-        data["meta_description"] = meta.get(
-            "content",
-            ""
-        )
-
-    # =====================================
-    # H1 TAGS
-    # =====================================
-
-    data["h1_tags"] = [
+    h1_tags = [
 
         h.get_text(strip=True)
 
         for h in soup.find_all("h1")
     ]
 
-    # =====================================
-    # H2 TAGS
-    # =====================================
-
-    data["h2_tags"] = [
+    h2_tags = [
 
         h.get_text(strip=True)
 
         for h in soup.find_all("h2")
     ]
 
-    # =====================================
-    # PARAGRAPHS
-    # =====================================
-
     paragraphs = [
 
-        p.get_text(" ", strip=True)
+        p.get_text(strip=True)
 
         for p in soup.find_all("p")
     ]
 
-    data["paragraphs"] = paragraphs
+    internal_links = []
 
-    full_text = " ".join(paragraphs)
+    for link in soup.find_all(
 
-    data["word_count"] = len(
+        "a",
+
+        href=True
+    ):
+
+        href = link["href"]
+
+        if href.startswith("/"):
+
+            internal_links.append(
+
+                urljoin(
+                    url,
+                    href
+                )
+            )
+
+    full_text = " ".join(
+        paragraphs
+    )
+
+    word_count = len(
         full_text.split()
     )
 
-    # =====================================
-    # SCHEMA DETECTION
-    # =====================================
+    schema_found = (
 
-    schema_tags = soup.find_all(
+        "application/ld+json"
 
-        "script",
-
-        attrs={
-            "type": "application/ld+json"
-        }
+        in html
     )
 
-    if schema_tags:
+    faq_detected = (
 
-        data["schema_found"] = True
+        "faq"
+
+        in html.lower()
+    )
+
+    ai_readiness = "Low"
+
+    if word_count > 4000 and len(h2_tags) >= 5:
+
+        ai_readiness = "High"
+
+    elif word_count > 1500:
+
+        ai_readiness = "Medium"
+
+    return {
+
+        "url":
+            url,
+
+        "h1_tags":
+            h1_tags,
+
+        "h2_tags":
+            h2_tags,
+
+        "paragraphs":
+            paragraphs,
+
+        "internal_links":
+            internal_links,
+
+        "word_count":
+            word_count,
+
+        "schema_found":
+            schema_found,
+
+        "faq_detected":
+            faq_detected,
+
+        "ai_readiness":
+            ai_readiness
+    }
+
+
+# =========================================
+# VALIDATION
+# =========================================
+
+def is_valid_extraction(
+
+    page_data
+):
+
+    if not isinstance(
+        page_data,
+        dict
+    ):
+
+        return False
+
+    if page_data.get(
+        "word_count",
+        0
+    ) < 300:
+
+        return False
+
+    return True
+
+
+# =========================================
+# REQUESTS
+# =========================================
+
+def fetch_requests(
+
+    url
+):
+
+    response = requests.get(
+
+        url,
+
+        headers=get_headers(),
+
+        timeout=30
+    )
+
+    return response.text
+
+
+# =========================================
+# CLOUDSCRAPER
+# =========================================
+
+def fetch_cloudscraper(
+
+    url
+):
+
+    scraper = cloudscraper.create_scraper()
+
+    response = scraper.get(
+
+        url,
+
+        headers=get_headers(),
+
+        timeout=40
+    )
+
+    return response.text
+
+
+# =========================================
+# SELENIUM
+# =========================================
+
+def fetch_selenium(
+
+    url
+):
+
+    options = Options()
+
+    options.add_argument(
+        "--headless"
+    )
+
+    options.add_argument(
+        "--disable-blink-features=AutomationControlled"
+    )
+
+    options.add_argument(
+        "--no-sandbox"
+    )
+
+    options.add_argument(
+        "--disable-dev-shm-usage"
+    )
+
+    options.add_argument(
+
+        f"user-agent={random.choice(USER_AGENTS)}"
+    )
+
+    driver = webdriver.Chrome(
+
+        service=Service(
+
+            ChromeDriverManager().install()
+        ),
+
+        options=options
+    )
+
+    driver.get(url)
 
     # =====================================
-    # FAQ DETECTION
+    # HYDRATION WAIT
     # =====================================
 
-    page_text = soup.get_text(
-        " ",
-        strip=True
-    ).lower()
+    time.sleep(6)
 
-    faq_keywords = [
+    html = driver.page_source
 
-        "faq",
+    driver.quit()
 
-        "frequently asked questions"
+    return html
+
+
+# =========================================
+# MAIN CRAWLER
+# =========================================
+
+def crawl_website(
+
+    url
+):
+
+    strategies = [
+
+        ("requests", fetch_requests),
+
+        ("cloudscraper", fetch_cloudscraper),
+
+        ("selenium", fetch_selenium)
     ]
 
-    for keyword in faq_keywords:
+    all_pages = []
 
-        if keyword in page_text:
+    successful_strategy = None
 
-            data["faq_detected"] = True
+    for strategy_name, strategy in strategies:
 
-    # =====================================
-    # INTERNAL LINKS
-    # =====================================
+        try:
 
-    parsed_domain = urlparse(url).netloc
+            print(
+                f"Trying {strategy_name}"
+            )
 
-    for link in soup.find_all("a"):
+            html = strategy(
+                url
+            )
 
-        href = link.get("href")
+            page_data = extract_page_data(
 
-        if not href:
+                html,
+
+                url
+            )
+
+            if is_valid_extraction(
+                page_data
+            ):
+
+                successful_strategy = strategy_name
+
+                all_pages.append(
+                    page_data
+                )
+
+                print(
+                    f"{strategy_name} success"
+                )
+
+                break
+
+            else:
+
+                print(
+                    f"{strategy_name} extraction invalid"
+                )
+
+        except Exception as error:
+
+            print(
+                f"{strategy_name} failed: {error}"
+            )
 
             continue
 
-        absolute_url = urljoin(
-            url,
-            href
-        )
+    # =====================================
+    # FAILURE
+    # =====================================
 
-        if parsed_domain in absolute_url:
-
-            data["internal_links"].append(
-                absolute_url
-            )
-
-    return data
-
-
-# =========================================
-# MAIN WEBSITE CRAWLER
-# =========================================
-
-def crawl_website(url):
-
-    visited = set()
-
-    pages_to_visit = [url]
-
-    crawled_pages = []
-
-    max_pages = 5
-
-    try:
-
-        with sync_playwright() as p:
-
-            browser = p.chromium.launch(
-                headless=True
-            )
-
-            page = browser.new_page()
-
-            while (
-
-                pages_to_visit
-
-                and
-
-                len(crawled_pages) < max_pages
-            ):
-
-                current_url = pages_to_visit.pop(0)
-
-                if current_url in visited:
-
-                    continue
-
-                visited.add(current_url)
-
-                try:
-
-                    page.goto(
-
-                        current_url,
-
-                        timeout=45000,
-
-                        wait_until="domcontentloaded"
-                    )
-
-                    html = page.content()
-
-                    page_data = analyze_page(
-
-                        html,
-
-                        current_url
-                    )
-
-                    crawled_pages.append(
-                        page_data
-                    )
-
-                    # =====================
-                    # DISCOVER NEW LINKS
-                    # =====================
-
-                    for link in page_data[
-                        "internal_links"
-                    ]:
-
-                        if (
-
-                            link not in visited
-
-                            and
-
-                            link not in pages_to_visit
-                        ):
-
-                            pages_to_visit.append(
-                                link
-                            )
-
-                except Exception:
-
-                    continue
-
-            browser.close()
-
-    except Exception as error:
+    if len(all_pages) == 0:
 
         return {
 
-            "url": url,
+            "url":
+                url,
 
-            "title": "",
+            "word_count":
+                0,
 
-            "meta_description": "",
+            "schema_found":
+                False,
 
-            "h1_tags": [],
+            "faq_detected":
+                False,
 
-            "h2_tags": [],
+            "ai_readiness":
+                "Low",
 
-            "paragraphs": [],
+            "crawl_confidence":
+                "Low",
 
-            "internal_links": [],
+            "pages_crawled":
+                0,
 
-            "word_count": 0,
+            "h2_tags":
+                [],
 
-            "schema_found": False,
+            "internal_links":
+                [],
 
-            "faq_detected": False,
-
-            "content_depth": "Low",
-
-            "ai_readiness": "Low",
-
-            "technical_findings": [
-
-                f"Crawler failed: {str(error)}"
-            ]
+            "all_pages":
+                []
         }
 
     # =====================================
-    # SAFETY CHECK
+    # AGGREGATION
     # =====================================
 
-    if len(crawled_pages) == 0:
-
-        return {
-
-            "url": url,
-
-            "title": "",
-
-            "meta_description": "",
-
-            "h1_tags": [],
-
-            "h2_tags": [],
-
-            "paragraphs": [],
-
-            "internal_links": [],
-
-            "word_count": 0,
-
-            "schema_found": False,
-
-            "faq_detected": False,
-
-            "content_depth": "Low",
-
-            "ai_readiness": "Low",
-
-            "technical_findings": [
-
-                "Crawler could not extract any pages."
-            ]
-        }
-
-    # =====================================
-    # AGGREGATE DATA
-    # =====================================
-
-    total_word_count = sum(
+    total_words = sum(
 
         page.get(
             "word_count",
             0
         )
 
-        for page in crawled_pages
-    )
-
-    total_h1 = sum(
-
-        len(
-            page.get(
-                "h1_tags",
-                []
-            )
-        )
-
-        for page in crawled_pages
-    )
-
-    total_h2 = sum(
-
-        len(
-            page.get(
-                "h2_tags",
-                []
-            )
-        )
-
-        for page in crawled_pages
+        for page in all_pages
     )
 
     schema_found = any(
@@ -383,7 +438,7 @@ def crawl_website(url):
             False
         )
 
-        for page in crawled_pages
+        for page in all_pages
     )
 
     faq_detected = any(
@@ -393,14 +448,24 @@ def crawl_website(url):
             False
         )
 
-        for page in crawled_pages
+        for page in all_pages
     )
 
-    all_internal_links = []
+    h2_tags = []
 
-    for page in crawled_pages:
+    internal_links = []
 
-        all_internal_links.extend(
+    for page in all_pages:
+
+        h2_tags.extend(
+
+            page.get(
+                "h2_tags",
+                []
+            )
+        )
+
+        internal_links.extend(
 
             page.get(
                 "internal_links",
@@ -409,108 +474,28 @@ def crawl_website(url):
         )
 
     # =====================================
-    # CONTENT DEPTH
+    # CONFIDENCE
     # =====================================
 
-    content_depth = "Low"
+    if successful_strategy == "selenium":
 
-    if total_word_count > 8000:
+        crawl_confidence = "High"
 
-        content_depth = "High"
+    elif successful_strategy == "cloudscraper":
 
-    elif total_word_count > 3000:
+        crawl_confidence = "Medium"
 
-        content_depth = "Medium"
+    else:
 
-    # =====================================
-    # AI READINESS
-    # =====================================
-
-    ai_score = 0
-
-    if schema_found:
-
-        ai_score += 1
-
-    if faq_detected:
-
-        ai_score += 1
-
-    if total_h2 >= 10:
-
-        ai_score += 1
-
-    if total_word_count >= 3000:
-
-        ai_score += 1
-
-    ai_readiness = "Low"
-
-    if ai_score >= 3:
-
-        ai_readiness = "High"
-
-    elif ai_score == 2:
-
-        ai_readiness = "Medium"
-
-    # =====================================
-    # PRIMARY PAGE
-    # =====================================
-
-    primary_page = crawled_pages[0]
-
-    # =====================================
-    # FINAL SITE DATA
-    # =====================================
+        crawl_confidence = "Medium"
 
     return {
 
-        "url": url,
-
-        "pages_crawled":
-            len(crawled_pages),
-
-        "all_pages":
-            crawled_pages,
-
-        "title":
-            primary_page.get(
-                "title",
-                ""
-            ),
-
-        "meta_description":
-            primary_page.get(
-                "meta_description",
-                ""
-            ),
-
-        "h1_tags":
-            primary_page.get(
-                "h1_tags",
-                []
-            ),
-
-        "h2_tags":
-            primary_page.get(
-                "h2_tags",
-                []
-            ),
-
-        "paragraphs":
-            primary_page.get(
-                "paragraphs",
-                []
-            ),
-
-        "internal_links":
-            list(
-                set(all_internal_links)
-            ),
+        "url":
+            url,
 
         "word_count":
-            total_word_count,
+            total_words,
 
         "schema_found":
             schema_found,
@@ -518,18 +503,25 @@ def crawl_website(url):
         "faq_detected":
             faq_detected,
 
-        "content_depth":
-            content_depth,
-
         "ai_readiness":
-            ai_readiness,
 
-        "technical_findings": [
+            all_pages[0].get(
+                "ai_readiness",
+                "Low"
+            ),
 
-            f"{len(crawled_pages)} pages crawled",
+        "crawl_confidence":
+            crawl_confidence,
 
-            f"{total_word_count} total words analyzed",
+        "pages_crawled":
+            len(all_pages),
 
-            f"{len(all_internal_links)} internal links discovered"
-        ]
+        "h2_tags":
+            h2_tags,
+
+        "internal_links":
+            internal_links,
+
+        "all_pages":
+            all_pages
     }

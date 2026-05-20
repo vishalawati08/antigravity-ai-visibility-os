@@ -1,10 +1,12 @@
 from reportlab.platypus import (
+
     SimpleDocTemplate,
+
     Paragraph,
+
     Spacer,
-    Table,
-    TableStyle,
-    Image
+
+    PageBreak
 )
 
 from reportlab.lib.styles import (
@@ -13,43 +15,39 @@ from reportlab.lib.styles import (
 
 from reportlab.lib.pagesizes import letter
 
-from reportlab.lib import colors
-
-from tools.chart_generator import (
-    generate_score_chart,
-    generate_competitor_chart
+from reportlab.platypus.tables import (
+    Table,
+    TableStyle
 )
+
+from reportlab.lib import colors
 
 
 # =========================================
 # PDF EXPORTER
 # =========================================
 
-def export_pdf_report(
+def export_pdf(
 
-    report,
+    report_data,
 
     output_path="ai_visibility_report.pdf"
 ):
+
+    # =====================================
+    # DOCUMENT
+    # =====================================
 
     doc = SimpleDocTemplate(
 
         output_path,
 
-        pagesize=letter,
-
-        rightMargin=40,
-
-        leftMargin=40,
-
-        topMargin=40,
-
-        bottomMargin=40
+        pagesize=letter
     )
 
     styles = getSampleStyleSheet()
 
-    story = []
+    elements = []
 
     # =====================================
     # TITLE
@@ -57,14 +55,14 @@ def export_pdf_report(
 
     title = Paragraph(
 
-        "AI Visibility OS — Executive Intelligence Report",
+        "Executive AI Visibility Intelligence Report",
 
         styles["Title"]
     )
 
-    story.append(title)
+    elements.append(title)
 
-    story.append(
+    elements.append(
         Spacer(1, 20)
     )
 
@@ -72,65 +70,86 @@ def export_pdf_report(
     # SCORES
     # =====================================
 
-    scores = report.get(
+    scores = report_data.get(
         "scores",
         {}
     )
 
     score_data = [
 
+        ["Category", "Score"],
+
         [
 
-            "SEO Score",
+            "SEO Maturity",
 
-            "AI Visibility",
-
-            "GEO/AEO",
-
-            "Competitive Readiness"
+            str(
+                scores.get(
+                    "seo_score",
+                    0
+                )
+            )
         ],
 
         [
 
-            scores.get(
-                "seo_score",
-                0
-            ),
+            "AI Visibility",
 
-            scores.get(
-                "ai_visibility_score",
-                0
-            ),
+            str(
+                scores.get(
+                    "ai_visibility_score",
+                    0
+                )
+            )
+        ],
 
-            scores.get(
-                "geo_score",
-                0
-            ),
+        [
 
-            scores.get(
-                "competitive_readiness",
-                0
+            "GEO / AEO",
+
+            str(
+                scores.get(
+                    "geo_score",
+                    0
+                )
+            )
+        ],
+
+        [
+
+            "Competitive Readiness",
+
+            str(
+                scores.get(
+                    "competitive_readiness",
+                    0
+                )
             )
         ]
     ]
 
-    table = Table(score_data)
+    score_table = Table(
+        score_data,
+        colWidths=[250, 150]
+    )
 
-    table.setStyle(
+    score_table.setStyle(
 
         TableStyle([
 
             (
+
                 "BACKGROUND",
 
                 (0, 0),
 
                 (-1, 0),
 
-                colors.HexColor("#111827")
+                colors.HexColor("#1f2937")
             ),
 
             (
+
                 "TEXTCOLOR",
 
                 (0, 0),
@@ -141,6 +160,7 @@ def export_pdf_report(
             ),
 
             (
+
                 "GRID",
 
                 (0, 0),
@@ -153,6 +173,7 @@ def export_pdf_report(
             ),
 
             (
+
                 "FONTNAME",
 
                 (0, 0),
@@ -163,6 +184,7 @@ def export_pdf_report(
             ),
 
             (
+
                 "BOTTOMPADDING",
 
                 (0, 0),
@@ -174,131 +196,118 @@ def export_pdf_report(
         ])
     )
 
-    story.append(table)
+    elements.append(score_table)
 
-    story.append(
-        Spacer(1, 30)
-    )
-
-    # =====================================
-    # SCORE CHART
-    # =====================================
-
-    score_chart = generate_score_chart(
-
-        report.get(
-            "scores",
-            {}
-        )
-    )
-
-    story.append(
-
-        Image(
-
-            score_chart,
-
-            width=450,
-
-            height=280
-        )
-    )
-
-    story.append(
-        Spacer(1, 30)
+    elements.append(
+        Spacer(1, 25)
     )
 
     # =====================================
     # EXECUTIVE SUMMARY
     # =====================================
 
-    story.append(
+    executive_summary = report_data.get(
+
+        "executive_summary",
+
+        "No executive summary available."
+    )
+
+    elements.append(
 
         Paragraph(
 
-            "Executive Summary",
+            "Executive Intelligence Summary",
 
             styles["Heading1"]
         )
     )
 
-    story.append(
+    elements.append(
+        Spacer(1, 10)
+    )
+
+    elements.append(
 
         Paragraph(
 
-            report.get(
-                "executive_summary",
-                ""
-            ),
+            executive_summary,
 
             styles["BodyText"]
         )
     )
 
-    story.append(
-        Spacer(1, 24)
+    elements.append(
+        Spacer(1, 25)
     )
 
     # =====================================
     # TECHNICAL AUDIT
     # =====================================
 
-    story.append(
+    technical_audit = report_data.get(
+
+        "technical_audit",
+
+        []
+    )
+
+    elements.append(
 
         Paragraph(
 
-            "Technical SEO Audit",
+            "Technical Audit Findings",
 
             styles["Heading1"]
         )
     )
 
-    technical_audit = report.get(
-        "technical_audit",
-        []
+    elements.append(
+        Spacer(1, 10)
     )
 
-    for finding in technical_audit:
+    for item in technical_audit:
 
         if not isinstance(
-            finding,
+            item,
             dict
         ):
 
             continue
 
-        issue = finding.get(
+        issue = item.get(
             "issue",
             ""
         )
 
-        details = finding.get(
+        status = item.get(
+            "status",
+            ""
+        )
+
+        details = item.get(
             "details",
             ""
         )
 
-        recommendation = finding.get(
+        recommendation = item.get(
             "recommendation",
             ""
         )
 
-        priority = finding.get(
-            "priority",
-            "Medium"
-        )
-
         text = f"""
 
-        <b>{priority} — {issue}</b><br/><br/>
+        <b>{issue}</b><br/>
 
-        {details}<br/><br/>
+        Status: {status}<br/>
 
-        <b>Recommendation:</b>
-        {recommendation}
+        Details: {details}<br/>
+
+        Recommendation: {recommendation}
 
         """
 
-        story.append(
+        elements.append(
 
             Paragraph(
 
@@ -308,15 +317,22 @@ def export_pdf_report(
             )
         )
 
-        story.append(
-            Spacer(1, 18)
+        elements.append(
+            Spacer(1, 12)
         )
 
     # =====================================
-    # GEO / AEO
+    # GEO / AEO SECTION
     # =====================================
 
-    story.append(
+    geo_section = report_data.get(
+
+        "geo_section",
+
+        []
+    )
+
+    elements.append(
 
         Paragraph(
 
@@ -326,12 +342,11 @@ def export_pdf_report(
         )
     )
 
-    geo_analysis = report.get(
-        "geo_aeo_analysis",
-        []
+    elements.append(
+        Spacer(1, 10)
     )
 
-    for item in geo_analysis:
+    for item in geo_section:
 
         if not isinstance(
             item,
@@ -340,16 +355,32 @@ def export_pdf_report(
 
             continue
 
+        category = item.get(
+            "category",
+            ""
+        )
+
+        status = item.get(
+            "status",
+            ""
+        )
+
+        details = item.get(
+            "details",
+            ""
+        )
+
         text = f"""
 
-        <b>{item.get('status', '')}
-        — {item.get('category', '')}</b><br/><br/>
+        <b>{category}</b><br/>
 
-        {item.get('details', '')}
+        Status: {status}<br/>
+
+        {details}
 
         """
 
-        story.append(
+        elements.append(
 
             Paragraph(
 
@@ -359,158 +390,109 @@ def export_pdf_report(
             )
         )
 
-        story.append(
-            Spacer(1, 18)
+        elements.append(
+            Spacer(1, 12)
         )
 
     # =====================================
-    # COMPETITOR BENCHMARKING
+    # COMPETITOR SECTION
     # =====================================
 
-    story.append(
+    competitor_section = report_data.get(
+
+        "competitor_section",
+
+        {}
+    )
+
+    competitors = competitor_section.get(
+
+        "competitors",
+
+        []
+    )
+
+    elements.append(
 
         Paragraph(
 
-            "Competitive Benchmarking",
+            "Competitive Intelligence",
 
             styles["Heading1"]
         )
     )
 
-    competitors = report.get(
-        "competitor_data",
-        []
+    elements.append(
+        Spacer(1, 10)
     )
-
-    competitor_table = [
-
-        [
-
-            "Competitor",
-
-            "SEO",
-
-            "AI Visibility",
-
-            "GEO/AEO",
-
-            "Content Depth"
-        ]
-    ]
 
     for competitor in competitors:
 
-        competitor_table.append([
+        if not isinstance(
+            competitor,
+            dict
+        ):
 
-            competitor.get(
-                "name",
-                ""
-            ),
+            continue
 
-            competitor.get(
-                "seo_score",
-                0
-            ),
-
-            competitor.get(
-                "ai_visibility",
-                0
-            ),
-
-            competitor.get(
-                "geo_score",
-                0
-            ),
-
-            competitor.get(
-                "content_depth",
-                ""
-            )
-        ])
-
-    competitor_table_obj = Table(
-        competitor_table
-    )
-
-    competitor_table_obj.setStyle(
-
-        TableStyle([
-
-            (
-                "BACKGROUND",
-
-                (0, 0),
-
-                (-1, 0),
-
-                colors.HexColor("#111827")
-            ),
-
-            (
-                "TEXTCOLOR",
-
-                (0, 0),
-
-                (-1, 0),
-
-                colors.white
-            ),
-
-            (
-                "GRID",
-
-                (0, 0),
-
-                (-1, -1),
-
-                1,
-
-                colors.grey
-            )
-        ])
-    )
-
-    story.append(
-        competitor_table_obj
-    )
-
-    story.append(
-        Spacer(1, 30)
-    )
-
-    # =====================================
-    # COMPETITOR CHART
-    # =====================================
-
-    competitor_chart = generate_competitor_chart(
-
-        report.get(
-            "competitor_data",
-            []
+        name = competitor.get(
+            "name",
+            "Unknown"
         )
-    )
 
-    story.append(
-
-        Image(
-
-            competitor_chart,
-
-            width=500,
-
-            height=280
+        seo_score = competitor.get(
+            "seo_score",
+            0
         )
-    )
 
-    story.append(
-        Spacer(1, 30)
-    )
+        ai_score = competitor.get(
+            "ai_visibility",
+            0
+        )
+
+        geo_score = competitor.get(
+            "geo_score",
+            0
+        )
+
+        text = f"""
+
+        <b>{name}</b><br/>
+
+        SEO Score: {seo_score}<br/>
+
+        AI Visibility: {ai_score}<br/>
+
+        GEO / AEO: {geo_score}
+
+        """
+
+        elements.append(
+
+            Paragraph(
+
+                text,
+
+                styles["BodyText"]
+            )
+        )
+
+        elements.append(
+            Spacer(1, 12)
+        )
 
     # =====================================
     # RECOMMENDATIONS
     # =====================================
 
-    story.append(
+    recommendations = report_data.get(
+
+        "recommendations",
+
+        []
+    )
+
+    elements.append(
 
         Paragraph(
 
@@ -520,23 +502,55 @@ def export_pdf_report(
         )
     )
 
-    story.append(
-
-        Paragraph(
-
-            report.get(
-                "recommendations",
-                ""
-            ),
-
-            styles["BodyText"]
-        )
+    elements.append(
+        Spacer(1, 10)
     )
+
+    # =====================================
+    # LIST / STRING SUPPORT
+    # =====================================
+
+    if isinstance(
+
+        recommendations,
+
+        list
+    ):
+
+        recommendation_lines = recommendations
+
+    else:
+
+        recommendation_lines = str(
+            recommendations
+        ).split("\n")
+
+    for item in recommendation_lines:
+
+        item = str(item).strip()
+
+        if not item:
+
+            continue
+
+        elements.append(
+
+            Paragraph(
+
+                f"• {item}",
+
+                styles["BodyText"]
+            )
+        )
+
+        elements.append(
+            Spacer(1, 8)
+        )
 
     # =====================================
     # BUILD PDF
     # =====================================
 
-    doc.build(story)
+    doc.build(elements)
 
     return output_path

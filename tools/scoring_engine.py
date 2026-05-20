@@ -1,5 +1,5 @@
 # =========================================
-# SCORING ENGINE
+# CALIBRATED ENTERPRISE SCORING ENGINE
 # =========================================
 
 def calculate_scores(
@@ -8,19 +8,18 @@ def calculate_scores(
 ):
 
     # =====================================
-    # BASE SCORES
+    # SAFE DEFAULTS
     # =====================================
 
-    seo_score = 40
+    if not isinstance(
+        research_context,
+        dict
+    ):
 
-    ai_visibility_score = 40
-
-    geo_score = 40
-
-    competitive_readiness = 40
+        research_context = {}
 
     # =====================================
-    # CONTENT DEPTH
+    # EXTRACTION
     # =====================================
 
     word_count = research_context.get(
@@ -28,228 +27,308 @@ def calculate_scores(
         0
     )
 
-    if word_count > 2500:
+    schema_found = research_context.get(
+        "schema_found",
+        False
+    )
 
-        seo_score += 15
+    faq_detected = research_context.get(
+        "faq_detected",
+        False
+    )
+
+    semantic_richness = research_context.get(
+        "semantic_richness",
+        0
+    )
+
+    total_h2 = research_context.get(
+        "total_h2",
+        0
+    )
+
+    internal_links = research_context.get(
+        "internal_links",
+        0
+    )
+
+    crawl_confidence = research_context.get(
+        "crawl_confidence",
+        "Low"
+    )
+
+    pages_crawled = research_context.get(
+        "pages_crawled",
+        0
+    )
+
+    semantic_maturity = research_context.get(
+        "semantic_maturity",
+        "Low"
+    )
+
+    geo_maturity = research_context.get(
+        "geo_maturity",
+        "Low"
+    )
+
+    competitor_average = research_context.get(
+        "competitor_average",
+        60
+    )
+
+    # =====================================
+    # INITIAL SCORES
+    # =====================================
+
+    seo_score = 35
+
+    ai_visibility_score = 30
+
+    geo_score = 30
+
+    # =====================================
+    # CONTENT DEPTH
+    # ENTERPRISE-CALIBRATED
+    # =====================================
+
+    if word_count >= 8000:
+
+        seo_score += 22
+
+        ai_visibility_score += 18
+
+    elif word_count >= 3500:
+
+        seo_score += 18
 
         ai_visibility_score += 15
 
-        geo_score += 10
+    elif word_count >= 1500:
 
-    elif word_count > 1200:
+        seo_score += 14
+
+        ai_visibility_score += 12
+
+    elif word_count >= 700:
 
         seo_score += 10
 
         ai_visibility_score += 8
 
-        geo_score += 6
-
-    elif word_count > 800:
-
-        seo_score += 5
-
     # =====================================
-    # TITLE TAG
+    # SEMANTIC STRUCTURE
     # =====================================
 
-    if research_context.get("title_present"):
+    if total_h2 >= 15:
 
-        seo_score += 8
-
-    # =====================================
-    # META DESCRIPTION
-    # =====================================
-
-    if research_context.get(
-        "meta_description_present"
-    ):
-
-        seo_score += 5
-
-    # =====================================
-    # H1 STRUCTURE
-    # =====================================
-
-    h1_count = research_context.get(
-        "h1_count",
-        0
-    )
-
-    if h1_count == 1:
-
-        seo_score += 8
-
-        geo_score += 4
-
-    elif h1_count > 1:
-
-        seo_score -= 4
-
-    # =====================================
-    # H2 COVERAGE
-    # =====================================
-
-    h2_count = research_context.get(
-        "h2_count",
-        0
-    )
-
-    if h2_count >= 5:
-
-        seo_score += 8
-
-        ai_visibility_score += 10
-
-        geo_score += 10
-
-    elif h2_count >= 2:
-
-        seo_score += 4
-
-    # =====================================
-    # SCHEMA
-    # =====================================
-
-    if research_context.get(
-        "schema_found"
-    ):
-
-        seo_score += 10
+        seo_score += 18
 
         ai_visibility_score += 15
+
+        geo_score += 15
+
+    elif total_h2 >= 8:
+
+        seo_score += 14
+
+        ai_visibility_score += 12
 
         geo_score += 12
 
-    # =====================================
-    # FAQ DETECTION
-    # =====================================
+    elif total_h2 >= 4:
 
-    if research_context.get(
-        "faq_detected"
-    ):
+        seo_score += 10
 
-        ai_visibility_score += 15
+        ai_visibility_score += 8
 
-        geo_score += 18
+        geo_score += 8
 
     # =====================================
     # INTERNAL LINKING
     # =====================================
 
-    internal_links = research_context.get(
-        "internal_link_count",
-        0
-    )
-
-    if internal_links >= 15:
+    if internal_links >= 400:
 
         seo_score += 10
 
-    elif internal_links >= 5:
+    elif internal_links >= 100:
+
+        seo_score += 7
+
+    elif internal_links >= 30:
 
         seo_score += 5
 
     # =====================================
-    # IMAGE ALT COVERAGE
+    # SCHEMA
     # =====================================
 
-    missing_alt = research_context.get(
-        "images_missing_alt",
-        0
-    )
+    if schema_found:
 
-    if missing_alt == 0:
+        seo_score += 8
 
-        seo_score += 5
+        ai_visibility_score += 14
 
-    elif missing_alt > 10:
-
-        seo_score -= 5
+        geo_score += 16
 
     # =====================================
-    # CONTENT DEPTH SCORE
+    # FAQ DETECTION
     # =====================================
 
-    content_depth = research_context.get(
-        "content_depth",
-        "Low"
-    )
-
-    if content_depth == "High":
+    if faq_detected:
 
         ai_visibility_score += 12
 
-        competitive_readiness += 12
+        geo_score += 14
 
-    elif content_depth == "Medium":
+    # =====================================
+    # SEMANTIC MATURITY
+    # =====================================
+
+    if semantic_maturity == "High":
+
+        seo_score += 12
+
+        ai_visibility_score += 10
+
+    elif semantic_maturity == "Medium":
+
+        seo_score += 7
 
         ai_visibility_score += 6
 
-        competitive_readiness += 6
-
     # =====================================
-    # AI READINESS
+    # GEO MATURITY
     # =====================================
 
-    ai_readiness = research_context.get(
-        "ai_readiness",
-        "Low"
-    )
+    if geo_maturity == "High":
 
-    if ai_readiness == "High":
+        geo_score += 14
 
-        ai_visibility_score += 20
-
-        geo_score += 15
-
-        competitive_readiness += 15
-
-    elif ai_readiness == "Medium":
-
-        ai_visibility_score += 10
+    elif geo_maturity == "Medium":
 
         geo_score += 8
 
     # =====================================
-    # COMPETITOR AVERAGE
+    # CRAWL CONFIDENCE
+    # CALIBRATED MODERATION
     # =====================================
 
-    competitor_average = research_context.get(
-        "competitor_average",
-        50
-    )
+    if crawl_confidence == "High":
 
-    if competitor_average > 70:
+        seo_score += 5
 
-        competitive_readiness += 10
+        ai_visibility_score += 5
 
-    elif competitor_average > 60:
+        geo_score += 5
 
-        competitive_readiness += 5
+    elif crawl_confidence == "Medium":
 
-    # =====================================
-    # SCORE NORMALIZATION
-    # =====================================
+        seo_score += 2
 
-    seo_score = min(100, max(0, seo_score))
+        ai_visibility_score += 2
 
-    ai_visibility_score = min(
-        100,
-        max(0, ai_visibility_score)
-    )
+        geo_score += 2
 
-    geo_score = min(
-        100,
-        max(0, geo_score)
-    )
+    else:
 
-    competitive_readiness = min(
-        100,
-        max(0, competitive_readiness)
-    )
+        seo_score -= 5
+
+        ai_visibility_score -= 5
+
+        geo_score -= 5
 
     # =====================================
-    # FINAL SCORES
+    # PAGE COVERAGE
+    # =====================================
+
+    if pages_crawled >= 5:
+
+        seo_score += 6
+
+        ai_visibility_score += 4
+
+    elif pages_crawled >= 2:
+
+        seo_score += 3
+
+        ai_visibility_score += 2
+
+    # =====================================
+    # NORMALIZATION
+    # =====================================
+
+    seo_score = max(
+        20,
+        min(
+            round(seo_score),
+            95
+        )
+    )
+
+    ai_visibility_score = max(
+        20,
+        min(
+            round(ai_visibility_score),
+            95
+        )
+    )
+
+    geo_score = max(
+        20,
+        min(
+            round(geo_score),
+            95
+        )
+    )
+
+    # =====================================
+    # COMPETITIVE READINESS
+    # =====================================
+
+    competitive_readiness = round(
+
+        (
+
+            seo_score
+
+            +
+
+            ai_visibility_score
+
+            +
+
+            geo_score
+        )
+
+        / 3
+    )
+
+    # =====================================
+    # INDUSTRY RELATIVE ADJUSTMENT
+    # =====================================
+
+    if competitive_readiness > competitor_average:
+
+        competitive_readiness += 4
+
+    elif competitive_readiness < competitor_average:
+
+        competitive_readiness -= 4
+
+    competitive_readiness = max(
+
+        20,
+
+        min(
+            competitive_readiness,
+            95
+        )
+    )
+
+    # =====================================
+    # FINAL OUTPUT
     # =====================================
 
     return {

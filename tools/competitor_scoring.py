@@ -8,82 +8,68 @@ from tools.scoring_engine import (
 
 
 # =========================================
-# COMPETITOR SCORING ENGINE
+# COMPETITOR SCORING
 # =========================================
 
 def score_competitors(
 
-    crawled_competitors
+    site_data,
+
+    geo_analysis,
+
+    competitor_data
 ):
 
-    scored = []
+    # =====================================
+    # BUILD RESEARCH CONTEXT
+    # =====================================
 
-    for competitor in crawled_competitors:
+    research_context = build_research_context(
 
-        site_data = competitor.get(
-            "site_data",
-            {}
-        )
+        site_data,
 
-        if not site_data:
+        geo_analysis,
 
-            continue
+        competitor_data
 
-        research_context = build_research_context(
+    )
 
-            site_data,
+    # =====================================
+    # CALCULATE SCORES
+    # =====================================
 
-            []
-        )
+    scores = calculate_scores(
 
-        scores = calculate_scores(
+        research_context
+    )
 
-            research_context
-        )
+    # =====================================
+    # RETURN SCORES
+    # =====================================
 
-        scored.append({
+    return {
 
-            "name":
-                competitor.get(
-                    "name",
-                    "Unknown"
-                ),
+        "seo_score":
+            scores.get(
+                "seo_score",
+                0
+            ),
 
-            "domain":
-                competitor.get(
-                    "domain",
-                    ""
-                ),
+        "ai_visibility_score":
+            scores.get(
+                "ai_visibility_score",
+                0
+            ),
 
-            "seo_score":
-                scores.get(
-                    "seo_score",
-                    0
-                ),
+        "geo_score":
+            scores.get(
+                "geo_score",
+                0
+            ),
 
-            "ai_visibility":
-                scores.get(
-                    "ai_visibility_score",
-                    0
-                ),
-
-            "geo_score":
-                scores.get(
-                    "geo_score",
-                    0
-                ),
-
-            "content_depth":
-                site_data.get(
-                    "content_depth",
-                    "Low"
-                ),
-
-            "word_count":
-                site_data.get(
-                    "word_count",
-                    0
-                )
-        })
-
-    return scored
+        "competitive_readiness":
+            scores.get(
+                "competitive_readiness",
+                0
+            )
+    }

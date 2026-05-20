@@ -2,135 +2,17 @@
 # EXECUTIVE SUMMARY
 # =========================================
 
-def executive_summary(
+def generate_executive_summary(
 
-    research_context
-):
-
-    word_count = research_context.get(
-        "word_count",
-        0
-    )
-
-    ai_readiness = research_context.get(
-        "ai_readiness",
-        "Low"
-    )
-
-    competitor_average = research_context.get(
-        "competitor_average",
-        0
-    )
-
-    summary = """
-
-    The analysis indicates that the website
-    demonstrates evolving search visibility
-    maturity with opportunities to improve
-    semantic discoverability, AI-answer
-    readiness and competitive positioning.
-
-    """
-
-    # =====================================
-    # CONTENT DEPTH
-    # =====================================
-
-    if word_count > 4000:
-
-        summary += """
-
-        Strong content depth and semantic
-        breadth contribute positively to
-        topical authority and AI discoverability.
-
-        """
-
-    elif word_count < 1500:
-
-        summary += """
-
-        Limited semantic depth may reduce
-        topical authority and weaken broader
-        search discoverability.
-
-        """
-
-    # =====================================
-    # AI READINESS
-    # =====================================
-
-    if ai_readiness == "High":
-
-        summary += """
-
-        AI-answer readiness appears strong,
-        supported by semantic structure,
-        machine-readable content and
-        conversational discoverability signals.
-
-        """
-
-    elif ai_readiness == "Low":
-
-        summary += """
-
-        AI-answer readiness remains limited,
-        particularly across structured
-        conversational optimization signals.
-
-        """
-
-    # =====================================
-    # COMPETITOR POSITION
-    # =====================================
-
-    if competitor_average > 75:
-
-        summary += """
-
-        Competitive benchmarking indicates
-        that industry competitors demonstrate
-        relatively mature semantic and AI
-        visibility strategies.
-
-        """
-
-    elif competitor_average > 60:
-
-        summary += """
-
-        Competitive analysis suggests
-        moderate industry maturity with
-        opportunities for strategic
-        differentiation.
-
-        """
-
-    summary += """
-
-    Strategic improvements across
-    semantic architecture, structured
-    content and AI-answer optimization
-    may significantly improve both
-    organic search visibility and
-    AI-generated discoverability.
-
-    """
-
-    return summary
-
-
-# =========================================
-# AI VISIBILITY SECTION
-# =========================================
-
-def generate_ai_visibility_section(
-
-    site_data,
+    research_context,
 
     scores
 ):
+
+    seo_score = scores.get(
+        "seo_score",
+        0
+    )
 
     ai_score = scores.get(
         "ai_visibility_score",
@@ -142,103 +24,529 @@ def generate_ai_visibility_section(
         0
     )
 
-    section = f"""
+    crawl_confidence = research_context.get(
+        "crawl_confidence",
+        "Low"
+    )
 
-    AI Visibility Intelligence
+    semantic_maturity = research_context.get(
+        "semantic_maturity",
+        "Low"
+    )
 
-    AI Visibility Score:
-    {ai_score}/100
+    schema_found = research_context.get(
+        "schema_found",
+        False
+    )
 
-    GEO / AEO Score:
-    {geo_score}/100
+    faq_detected = research_context.get(
+        "faq_detected",
+        False
+    )
+
+    pages_crawled = research_context.get(
+        "pages_crawled",
+        0
+    )
+
+    # =====================================
+    # SEO SUMMARY
+    # =====================================
+
+    if seo_score >= 85:
+
+        seo_summary = (
+            "The website demonstrates strong organic search maturity "
+            "with well-developed semantic architecture and content breadth."
+        )
+
+    elif seo_score >= 70:
+
+        seo_summary = (
+            "The website demonstrates above-average search visibility maturity "
+            "with opportunities for deeper semantic optimization and entity enrichment."
+        )
+
+    elif seo_score >= 55:
+
+        seo_summary = (
+            "The website demonstrates moderate search maturity "
+            "with opportunities to strengthen semantic discoverability."
+        )
+
+    else:
+
+        seo_summary = (
+            "The website demonstrates limited search maturity "
+            "with significant opportunities for structural SEO improvement."
+        )
+
+    # =====================================
+    # AI SUMMARY
+    # =====================================
+
+    if ai_score >= 85:
+
+        ai_summary = (
+            "AI visibility readiness appears strong, supported by "
+            "machine-readable semantic structures and conversational discoverability signals."
+        )
+
+    elif ai_score >= 70:
+
+        ai_summary = (
+            "AI visibility maturity appears promising with opportunities "
+            "for improved conversational-answer optimization."
+        )
+
+    else:
+
+        ai_summary = (
+            "AI discoverability maturity currently appears limited "
+            "due to insufficient semantic-answer optimization."
+        )
+
+    # =====================================
+    # GEO SUMMARY
+    # =====================================
+
+    if geo_score >= 85:
+
+        geo_summary = (
+            "The platform demonstrates strong GEO/AEO readiness "
+            "with mature semantic-answer architecture."
+        )
+
+    elif geo_score >= 70:
+
+        geo_summary = (
+            "The platform demonstrates evolving GEO/AEO maturity "
+            "with opportunities for improved answer-engine optimization."
+        )
+
+    else:
+
+        geo_summary = (
+            "The current content ecosystem demonstrates weak GEO/AEO maturity "
+            "with minimal AI-answer optimization signals."
+        )
+
+    # =====================================
+    # SEMANTIC SUMMARY
+    # =====================================
+
+    if semantic_maturity == "High":
+
+        semantic_summary = (
+            "Semantic content architecture appears mature with strong topical structuring."
+        )
+
+    elif semantic_maturity == "Medium":
+
+        semantic_summary = (
+            "Semantic organization appears partially developed with opportunities "
+            "for stronger entity relationships and topical clustering."
+        )
+
+    else:
+
+        semantic_summary = (
+            "Semantic architecture appears fragmented with limited topical organization."
+        )
+
+    # =====================================
+    # STRUCTURED DATA
+    # =====================================
+
+    structured_summary = ""
+
+    if schema_found:
+
+        structured_summary += (
+            "Structured schema markup contributes positively to machine readability. "
+        )
+
+    else:
+
+        structured_summary += (
+            "Structured schema opportunities remain underutilized. "
+        )
+
+    if faq_detected:
+
+        structured_summary += (
+            "FAQ-oriented answer structures improve conversational discoverability."
+        )
+
+    else:
+
+        structured_summary += (
+            "Limited FAQ-style answer structuring may reduce AI-answer visibility."
+        )
+
+    # =====================================
+    # CRAWL CONFIDENCE
+    # =====================================
+
+    if crawl_confidence == "High":
+
+        crawl_summary = (
+            f"The analysis was conducted across {pages_crawled} successfully crawled pages, "
+            "providing strong confidence in extracted intelligence signals."
+        )
+
+    elif crawl_confidence == "Medium":
+
+        crawl_summary = (
+            f"The analysis was conducted across {pages_crawled} partially crawled pages, "
+            "providing moderate confidence in extracted intelligence signals."
+        )
+
+    else:
+
+        crawl_summary = (
+            "Limited crawl confidence may reduce extraction completeness "
+            "for semantic and technical evaluation."
+        )
+
+    # =====================================
+    # FINAL SUMMARY
+    # =====================================
+
+    final_summary = f"""
+
+    {seo_summary}
+
+    SEO maturity is currently estimated at {seo_score}/100,
+    while AI visibility and GEO/AEO readiness are estimated
+    at {ai_score}/100 and {geo_score}/100 respectively.
+
+    {ai_summary}
+
+    {geo_summary}
+
+    {semantic_summary}
+
+    {structured_summary}
+
+    {crawl_summary}
+
+    Strategic improvements across semantic architecture,
+    entity optimization, structured content formatting,
+    conversational-answer readiness and AI discoverability
+    may significantly improve future search visibility maturity.
 
     """
 
+    return final_summary
+
+
+# =========================================
+# TECHNICAL AUDIT
+# =========================================
+
+def generate_technical_audit(
+
+    site_data,
+
+    scores
+):
+
+    findings = []
+
+    word_count = site_data.get(
+        "word_count",
+        0
+    )
+
+    schema_found = site_data.get(
+        "schema_found",
+        False
+    )
+
+    faq_detected = site_data.get(
+        "faq_detected",
+        False
+    )
+
+    internal_links = len(
+
+        site_data.get(
+            "internal_links",
+            []
+        )
+    )
+
+    crawl_confidence = site_data.get(
+        "crawl_confidence",
+        "Low"
+    )
+
+    total_h2 = len(
+
+        site_data.get(
+            "h2_tags",
+            []
+        )
+    )
+
     # =====================================
-    # SCORE INTERPRETATION
+    # CONTENT DEPTH
     # =====================================
 
-    if ai_score >= 80:
+    if word_count >= 5000:
 
-        section += """
+        findings.append({
 
-        The website demonstrates strong
-        AI-search readiness with relatively
-        mature semantic architecture and
-        answer-focused discoverability.
+            "issue":
+                "Content Depth",
 
-        """
+            "status":
+                "Strong",
 
-    elif ai_score >= 60:
+            "details":
+                f"{word_count} words analyzed across crawled pages.",
 
-        section += """
+            "recommendation":
+                "Continue strengthening semantic topical authority.",
 
-        AI visibility maturity appears
-        moderate with opportunities to
-        strengthen conversational
-        optimization and semantic clarity.
+            "priority":
+                "Low"
+        })
 
-        """
+    elif word_count >= 1500:
+
+        findings.append({
+
+            "issue":
+                "Content Depth",
+
+            "status":
+                "Moderate",
+
+            "details":
+                f"{word_count} words analyzed across crawled pages.",
+
+            "recommendation":
+                "Expand structured technical and educational content depth.",
+
+            "priority":
+                "Medium"
+        })
 
     else:
 
-        section += """
+        findings.append({
 
-        AI discoverability maturity appears
-        limited and may reduce inclusion
-        within AI-generated search responses.
+            "issue":
+                "Limited Content Depth",
 
-        """
+            "status":
+                "Weak",
 
-    # =====================================
-    # FAQ
-    # =====================================
+            "details":
+                f"Only {word_count} words detected across crawled pages.",
 
-    if site_data.get("faq_detected"):
+            "recommendation":
+                "Substantially expand semantic content architecture.",
 
-        section += """
-
-        FAQ-focused semantic structures
-        contribute positively toward
-        conversational answer extraction.
-
-        """
-
-    else:
-
-        section += """
-
-        FAQ-oriented semantic structures
-        were not strongly detected and
-        remain a strategic opportunity area.
-
-        """
+            "priority":
+                "High"
+        })
 
     # =====================================
     # SCHEMA
     # =====================================
 
-    if site_data.get("schema_found"):
+    if schema_found:
 
-        section += """
+        findings.append({
 
-        Structured schema implementation
-        improves machine-readable context
-        and entity interpretation.
+            "issue":
+                "Structured Data",
 
-        """
+            "status":
+                "Strong",
+
+            "details":
+                "Structured schema markup detected.",
+
+            "recommendation":
+                "Expand schema coverage to additional technical content types.",
+
+            "priority":
+                "Medium"
+        })
 
     else:
 
-        section += """
+        findings.append({
 
-        Missing schema implementation may
-        reduce structured discoverability
-        across AI systems and search engines.
+            "issue":
+                "Structured Data Missing",
 
-        """
+            "status":
+                "Weak",
 
-    return section
+            "details":
+                "No structured schema markup detected.",
+
+            "recommendation":
+                "Implement FAQ, Product and Organization schema.",
+
+            "priority":
+                "High"
+        })
+
+    # =====================================
+    # FAQ
+    # =====================================
+
+    if faq_detected:
+
+        findings.append({
+
+            "issue":
+                "FAQ Optimization",
+
+            "status":
+                "Strong",
+
+            "details":
+                "Conversational FAQ structures detected.",
+
+            "recommendation":
+                "Expand answer-engine optimization coverage.",
+
+            "priority":
+                "Medium"
+        })
+
+    else:
+
+        findings.append({
+
+            "issue":
+                "FAQ Optimization",
+
+            "status":
+                "Weak",
+
+            "details":
+                "No FAQ-oriented answer structures detected.",
+
+            "recommendation":
+                "Implement FAQ and conversational-answer formatting.",
+
+            "priority":
+                "High"
+        })
+
+    # =====================================
+    # INTERNAL LINKING
+    # =====================================
+
+    if internal_links >= 400:
+
+        link_status = "Strong"
+
+    elif internal_links >= 100:
+
+        link_status = "Moderate"
+
+    else:
+
+        link_status = "Weak"
+
+    findings.append({
+
+        "issue":
+            "Internal Linking",
+
+        "status":
+            link_status,
+
+        "details":
+            f"{internal_links} internal links detected.",
+
+        "recommendation":
+            "Improve semantic internal linking between topical clusters.",
+
+        "priority":
+            "Medium"
+    })
+
+    # =====================================
+    # SEMANTIC STRUCTURE
+    # =====================================
+
+    if total_h2 >= 10:
+
+        semantic_status = "Strong"
+
+    elif total_h2 >= 5:
+
+        semantic_status = "Moderate"
+
+    else:
+
+        semantic_status = "Weak"
+
+    findings.append({
+
+        "issue":
+            "Semantic Structure",
+
+        "status":
+            semantic_status,
+
+        "details":
+            f"{total_h2} semantic H2 structures detected.",
+
+        "recommendation":
+            "Improve semantic topic hierarchy and structured content organization.",
+
+        "priority":
+            "Medium"
+    })
+
+    # =====================================
+    # CRAWL CONFIDENCE
+    # =====================================
+
+    findings.append({
+
+        "issue":
+            "Crawl Confidence",
+
+        "status":
+            crawl_confidence,
+
+        "details":
+            "Crawler extraction confidence based on rendered accessibility and semantic extraction completeness.",
+
+        "recommendation":
+            "Improve crawl accessibility and rendered semantic stability.",
+
+        "priority":
+            "Low"
+    })
+
+    return findings
+
+
+# =========================================
+# GEO SECTION
+# =========================================
+
+def generate_geo_section(
+
+    geo_analysis,
+
+    scores
+):
+
+    return geo_analysis
 
 
 # =========================================
@@ -249,341 +557,574 @@ def generate_competitor_section(
 
     competitor_data,
 
-    scores
+    competitor_scores
 ):
 
-    competitors = competitor_data.get(
-        "competitors",
-        []
+    # =====================================
+    # SAFE DEFAULTS
+    # =====================================
+
+    if not isinstance(
+        competitor_data,
+        list
+    ):
+
+        competitor_data = []
+
+    # =====================================
+    # COMPETITOR NARRATIVES
+    # =====================================
+
+    narratives = []
+
+    strongest_competitor = None
+
+    strongest_score = 0
+
+    weakest_competitor = None
+
+    weakest_score = 999
+
+    # =====================================
+    # ANALYZE COMPETITORS
+    # =====================================
+
+    for competitor in competitor_data:
+
+        if not isinstance(
+            competitor,
+            dict
+        ):
+
+            continue
+
+        name = competitor.get(
+            "name",
+            "Unknown"
+        )
+
+        seo_score = competitor.get(
+            "seo_score",
+            0
+        )
+
+        ai_score = competitor.get(
+            "ai_visibility",
+            0
+        )
+
+        geo_score = competitor.get(
+            "geo_score",
+            0
+        )
+
+        semantic_maturity = competitor.get(
+            "semantic_maturity",
+            "Low"
+        )
+
+        crawl_confidence = competitor.get(
+            "crawl_confidence",
+            "Low"
+        )
+
+        average_score = round(
+
+            (
+                seo_score
+                +
+                ai_score
+                +
+                geo_score
+            )
+
+            / 3
+        )
+
+        # =================================
+        # STRONGEST / WEAKEST
+        # =================================
+
+        if average_score > strongest_score:
+
+            strongest_score = average_score
+
+            strongest_competitor = name
+
+        if average_score < weakest_score:
+
+            weakest_score = average_score
+
+            weakest_competitor = name
+
+        # =================================
+        # INDIVIDUAL NARRATIVE
+        # =================================
+
+        if average_score >= 85:
+
+            narrative = (
+
+                f"{name} demonstrates strong semantic maturity, AI visibility readiness "
+                f"and answer-engine optimization across its digital ecosystem."
+            )
+
+        elif average_score >= 70:
+
+            narrative = (
+
+                f"{name} demonstrates evolving search visibility maturity with "
+                f"moderately developed semantic architecture and AI-answer readiness."
+            )
+
+        elif average_score >= 50:
+
+            narrative = (
+
+                f"{name} demonstrates partial semantic maturity with opportunities "
+                f"for stronger AI-search optimization and structured discoverability."
+            )
+
+        else:
+
+            narrative = (
+
+                f"{name} demonstrates limited semantic maturity and weaker "
+                f"AI-search discoverability signals relative to industry leaders."
+            )
+
+        # =================================
+        # CRAWL CONFIDENCE
+        # =================================
+
+        if crawl_confidence == "Low":
+
+            narrative += (
+                " Crawl confidence was limited, reducing extraction completeness."
+            )
+
+        # =================================
+        # SEMANTIC MATURITY
+        # =================================
+
+        if semantic_maturity == "High":
+
+            narrative += (
+                " Strong semantic structuring contributes positively to topical authority."
+            )
+
+        elif semantic_maturity == "Medium":
+
+            narrative += (
+                " Semantic organization appears partially developed."
+            )
+
+        narratives.append(
+
+            {
+                "name": name,
+                "narrative": narrative
+            }
+        )
+
+    # =====================================
+    # STRATEGIC BENCHMARK SUMMARY
+    # =====================================
+
+    benchmark_summary = ""
+
+    if strongest_competitor:
+
+        benchmark_summary += (
+
+            f"{strongest_competitor} currently demonstrates the strongest overall "
+            f"AI visibility and semantic maturity profile among analyzed competitors. "
+        )
+
+    if weakest_competitor:
+
+        benchmark_summary += (
+
+            f"{weakest_competitor} demonstrates comparatively weaker semantic "
+            f"discoverability and AI-search readiness signals. "
+        )
+
+    benchmark_summary += (
+
+        "Competitive differentiation opportunities exist across semantic content depth, "
+        "AI-answer optimization, structured data ecosystems and conversational discoverability."
     )
 
-    section = """
-
-    Competitive Benchmarking Analysis
-
-    The platform identified multiple
-    industry-relevant competitors with
-    measurable differences across
-    semantic maturity, AI visibility
-    and content authority.
-
-    """
-
-    if not competitors:
-
-        section += """
-
-        No competitor intelligence
-        could be generated.
-
-        """
-
-        return section
-
     # =====================================
-    # BENCHMARK TABLE
+    # FINAL OUTPUT
     # =====================================
 
-    section += """
+    return {
 
-    Benchmark Comparison
+        "competitors":
+            competitor_data,
 
-    """
+        "benchmark_scores":
+            competitor_scores,
 
-    for competitor in competitors:
+        "narratives":
+            narratives,
 
-        section += f"""
-
-        ------------------------------------------------
-
-        Competitor:
-        {competitor.get('name', 'Unknown')}
-
-        SEO Score:
-        {competitor.get('seo_score', 0)}/100
-
-        AI Visibility:
-        {competitor.get('ai_visibility', 0)}/100
-
-        GEO / AEO:
-        {competitor.get('geo_score', 0)}/100
-
-        Content Depth:
-        {competitor.get('content_depth', 'Low')}
-
-        Total Content:
-        {competitor.get('word_count', 0)} words
-
-        """
-
-    # =====================================
-    # STRATEGIC GAP ANALYSIS
-    # =====================================
-
-    section += """
-
-    Strategic Gap Analysis
-
-    Competitive benchmarking indicates
-    that differentiation opportunities
-    primarily exist across:
-
-    - semantic content architecture
-    - answer-focused optimization
-    - AI discoverability maturity
-    - structured schema implementation
-    - topical authority expansion
-    - conversational search readiness
-    - semantic hierarchy refinement
-
-    """
-
-    # =====================================
-    # POSITIONING
-    # =====================================
-
-    own_score = scores.get(
-        "seo_score",
-        0
-    )
-
-    top_competitor = max(
-
-        competitors,
-
-        key=lambda x:
-            x.get("seo_score", 0)
-    )
-
-    competitor_score = top_competitor.get(
-        "seo_score",
-        0
-    )
-
-    if own_score >= competitor_score:
-
-        section += """
-
-        The website demonstrates competitive
-        leadership across several core
-        visibility dimensions.
-
-        """
-
-    else:
-
-        section += f"""
-
-        The strongest competitor currently
-        demonstrates higher estimated SEO
-        maturity ({competitor_score}/100),
-        indicating opportunities for further
-        strategic optimization.
-
-        """
-
-    return section
+        "benchmark_summary":
+            benchmark_summary
+    }
 
 
 # =========================================
-# SERP SECTION
+# STRATEGIC RECOMMENDATIONS
 # =========================================
 
-def generate_serp_section(
+def generate_recommendations(
 
-    site_data,
+    research_context,
 
     scores
 ):
+
+    recommendations = []
+
+    if not isinstance(
+        research_context,
+        dict
+    ):
+
+        research_context = {}
+
+    if not isinstance(
+        scores,
+        dict
+    ):
+
+        scores = {}
 
     seo_score = scores.get(
         "seo_score",
         0
     )
 
-    word_count = site_data.get(
+    ai_score = scores.get(
+        "ai_visibility_score",
+        0
+    )
+
+    geo_score = scores.get(
+        "geo_score",
+        0
+    )
+
+    word_count = research_context.get(
         "word_count",
         0
     )
 
-    section = f"""
+    total_h2 = research_context.get(
+        "total_h2",
+        0
+    )
 
-    SERP Visibility Intelligence
+    schema_found = research_context.get(
+        "schema_found",
+        False
+    )
 
-    Estimated SEO Maturity:
-    {seo_score}/100
+    faq_detected = research_context.get(
+        "faq_detected",
+        False
+    )
 
-    """
+    crawl_confidence = research_context.get(
+        "crawl_confidence",
+        "Low"
+    )
+
+    semantic_maturity = research_context.get(
+        "semantic_maturity",
+        "Low"
+    )
+
+    geo_maturity = research_context.get(
+        "geo_maturity",
+        "Low"
+    )
+
+    internal_links = research_context.get(
+        "internal_links",
+        0
+    )
+
+    pages_crawled = research_context.get(
+        "pages_crawled",
+        0
+    )
+
+    all_text = str(
+
+        research_context.get(
+            "all_text",
+            ""
+        )
+    ).lower()
+
+    connector_keywords = [
+
+        "connector",
+        "backplane",
+        "signal integrity",
+        "high speed",
+        "power delivery",
+        "edge computing",
+        "server",
+        "gpu",
+        "thermal",
+        "data center",
+        "pcb",
+        "high density",
+        "networking",
+        "ai infrastructure",
+        "rack",
+        "hyperscale"
+    ]
+
+    detected_connector_industry = any(
+
+        keyword in all_text
+
+        for keyword in connector_keywords
+    )
 
     # =====================================
-    # SCORE ANALYSIS
+    # CONTENT DEPTH
     # =====================================
 
-    if seo_score >= 80:
+    if word_count < 2500:
 
-        section += """
+        if detected_connector_industry:
 
-        The website demonstrates strong
-        technical and semantic SEO maturity
-        supporting broader search visibility.
+            recommendations.append(
 
-        """
+                "Expand semantic topic coverage around high-speed connectivity, power delivery architectures, signal integrity optimization and edge-compute deployment scenarios."
+            )
 
-    elif seo_score >= 60:
+        else:
 
-        section += """
+            recommendations.append(
 
-        Moderate SEO maturity detected with
-        opportunities to improve semantic
-        structure and discoverability.
+                "Expand long-form semantic content coverage across high-intent topical clusters."
+            )
 
-        """
+    elif word_count < 5000:
+
+        recommendations.append(
+
+            "Increase topical authority depth through additional structured technical and educational content."
+        )
+
+    # =====================================
+    # SEMANTIC STRUCTURE
+    # =====================================
+
+    if total_h2 < 8:
+
+        recommendations.append(
+
+            "Improve semantic hierarchy using richer H2/H3 topical clustering and structured information architecture."
+        )
+
+    # =====================================
+    # INTERNAL LINKING
+    # =====================================
+
+    if internal_links < 100:
+
+        recommendations.append(
+
+            "Strengthen semantic internal linking between related solution pages, product ecosystems and technical content clusters."
+        )
+
+    # =====================================
+    # SCHEMA
+    # =====================================
+
+    if not schema_found:
+
+        recommendations.append(
+
+            "Implement expanded machine-readable schema coverage including FAQ, Product, Organization and TechnicalArticle schema structures."
+        )
 
     else:
 
-        section += """
+        recommendations.append(
 
-        SEO maturity appears relatively
-        limited compared to broader
-        competitive benchmarks.
-
-        """
+            "Expand structured schema coverage across technical resources, product ecosystems and educational content."
+        )
 
     # =====================================
-    # CONTENT ANALYSIS
+    # FAQ
     # =====================================
 
-    section += f"""
+    if not faq_detected:
 
-    Approximate semantic content analyzed:
-    {word_count} words
+        if detected_connector_industry:
 
-    """
+            recommendations.append(
 
-    if word_count > 4000:
+                "Develop conversational-answer content around connector selection, thermal optimization, high-density deployment and AI infrastructure interoperability."
+            )
 
-        section += """
+        else:
 
-        Strong semantic depth supports
-        topical authority expansion and
-        broader keyword discoverability.
+            recommendations.append(
 
-        """
+                "Expand FAQ-oriented answer structures to improve AI-answer discoverability and conversational search visibility."
+            )
 
     else:
 
-        section += """
+        recommendations.append(
 
-        Additional semantic expansion may
-        improve topical breadth and ranking
-        opportunities.
-
-        """
+            "Expand conversational-answer coverage across broader technical and deployment-oriented search intents."
+        )
 
     # =====================================
-    # STRATEGIC AREAS
+    # AI VISIBILITY
     # =====================================
 
-    section += """
+    if ai_score < 80:
 
-    Additional optimization opportunities
-    include:
+        recommendations.append(
 
-    - semantic topic clustering
-    - internal linking refinement
-    - structured metadata optimization
-    - AI-answer discoverability
-    - content hierarchy enhancement
-    - semantic authority expansion
+            "Strengthen AI-answer discoverability through semantic enrichment and conversational optimization."
+        )
 
-    """
+    else:
 
-    return section
+        recommendations.append(
 
-
-# =========================================
-# RECOMMENDATIONS SECTION
-# =========================================
-
-def generate_recommendations_section(
-
-    priority_actions
-):
-
-    section = """
-
-    Strategic Recommendations
-
-    The following initiatives are
-    recommended to improve both
-    traditional SEO performance and
-    AI-generated visibility.
-
-    """
-
-    if not priority_actions:
-
-        section += """
-
-        No major strategic recommendations
-        were generated during the analysis.
-
-        """
-
-        return section
+            "Continue strengthening AI-search discoverability through entity-rich semantic architecture and answer-engine optimization."
+        )
 
     # =====================================
-    # PRIORITY ACTIONS
+    # GEO
     # =====================================
 
-    for action in priority_actions:
+    if geo_score < 80:
 
-        if isinstance(action, str):
+        recommendations.append(
 
-            section += f"""
+            "Increase answer-engine optimization maturity through structured question-answer content and semantic entity relationships."
+        )
 
-            ------------------------------------------------
+    else:
 
-            Recommendation:
-            {action}
+        recommendations.append(
 
-            Estimated Priority:
-            Medium
-
-            """
-
-        elif isinstance(action, dict):
-
-            section += f"""
-
-            ------------------------------------------------
-
-            Recommendation:
-            {action.get('action', '')}
-
-            Priority Level:
-            {action.get('priority', 'Medium')}
-
-            """
+            "Expand semantic-answer ecosystems supporting AI-generated search experiences and conversational retrieval systems."
+        )
 
     # =====================================
-    # STRATEGIC INITIATIVES
+    # SEMANTIC MATURITY
     # =====================================
 
-    section += """
+    if semantic_maturity == "Low":
 
-    Recommended long-term strategic
-    focus areas include:
+        recommendations.append(
 
-    - AI-answer optimization
-    - conversational discoverability
-    - semantic content scaling
-    - structured entity implementation
-    - semantic hierarchy refinement
-    - topical authority expansion
-    - internal linking architecture
-    - AI-search readiness enhancement
+            "Strengthen semantic topic clustering and entity relationships to improve topical authority signals."
+        )
 
-    """
+    elif semantic_maturity == "Medium":
 
-    return section
+        recommendations.append(
+
+            "Improve semantic depth through expanded entity relationships and interconnected topical ecosystems."
+        )
+
+    # =====================================
+    # GEO MATURITY
+    # =====================================
+
+    if geo_maturity == "Low":
+
+        recommendations.append(
+
+            "Improve GEO/AEO maturity through enhanced answer structuring and conversational semantic formatting."
+        )
+
+    # =====================================
+    # CRAWL CONFIDENCE
+    # =====================================
+
+    if crawl_confidence == "Low":
+
+        recommendations.append(
+
+            "Improve crawl accessibility, rendered semantic content stability and machine-readable discoverability."
+        )
+
+    # =====================================
+    # PAGE COVERAGE
+    # =====================================
+
+    if pages_crawled <= 1:
+
+        recommendations.append(
+
+            "Expand crawl-accessible semantic content depth across additional technical and solution-oriented landing pages."
+        )
+
+    # =====================================
+    # ADVANCED INDUSTRY RECOMMENDATIONS
+    # =====================================
+
+    if detected_connector_industry:
+
+        recommendations.append(
+
+            "Expand technical semantic coverage around AI server infrastructure, rack-density optimization and high-speed backplane ecosystems."
+        )
+
+        recommendations.append(
+
+            "Develop AI-search-optimized educational content supporting edge computing, thermal performance and next-generation connector deployment use cases."
+        )
+
+    # =====================================
+    # HIGH PERFORMANCE
+    # =====================================
+
+    if (
+
+        seo_score >= 85
+
+        and
+
+        ai_score >= 85
+
+        and
+
+        geo_score >= 80
+    ):
+
+        recommendations.append(
+
+            "Maintain leadership positioning through continuous semantic expansion and AI-search ecosystem optimization."
+        )
+
+    # =====================================
+    # REMOVE DUPLICATES
+    # =====================================
+
+    recommendations = list(
+
+        dict.fromkeys(
+            recommendations
+        )
+    )
+
+    return recommendations
